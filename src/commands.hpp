@@ -3,7 +3,8 @@
 #include <vector>
 #include <string>
 #include "user.hpp"
-
+#include "courses.hpp"
+#include "units.hpp"
 using namespace std;
 class System;
 class Command
@@ -30,6 +31,7 @@ public:
     void get_courses();
     void personal_page(vector<string> line);
     void view_post(vector<string> line);
+    void view_notifications(vector<string> line);
 
 };
 
@@ -44,8 +46,9 @@ public:
     void connect(string id);
     void execute(string action) override;
     void post(vector<string> line);
+    void course_offer(vector<string> line);
 private:
-};
+}; 
 
 class PutCommand : public Command
 {

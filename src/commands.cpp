@@ -1,13 +1,13 @@
 
 #include "commands.hpp"
 #include "system.hpp"
-
+#include "commandglobal.hpp"
 using namespace std;
 
 // Define the valid commands for each command type
 vector<string> GetCommand::get_valid_commands()
 {
-    return {"courses", "personal_page", "post", "notifications"};
+    return {"courses", "personal_page", "post", "notification"};
 }
 
 vector<string> PostCommand::get_valid_commands()
@@ -61,7 +61,6 @@ void PostCommand::execute(string action)
     vector<string> line = system.get_line();
     if (system.current_user == nullptr && line[1] != LOGIN && line[1] == LOGOUT)
     {
-        cout <<"SDf";
         throw PermissionDeniedError();
     }
     if (system.current_user != nullptr && (line[1] == LOGIN))
@@ -85,17 +84,42 @@ void PostCommand::execute(string action)
     {
         post(system.get_line());
     }
+    else if(line[1]=="course_offer"){
+        course_offer(system.get_line());
+    }
 }
-
+void PostCommand::course_offer(vector<string> line){
+    if (system.current_user->get_id()!="0")
+    {
+        throw PermissionDeniedError();
+    }
+    if (line.size()!=15 || line[2]!="?")
+    {
+        throw BadRequestError();
+    }
+    for (int i = 3; i < line.size(); i+=2)
+    {
+        if (line[i]!=COURSE_OFFER &&line[i]!=COURSE_ID &&line[i]!=CAPACITY &&line[i]!=PROFESSOR_ID &&line[i]!=CLASS_NUMBER&&line[i]!=EXAM_DATE&& line[i]!=TIME )
+        {
+            throw BadRequestError();
+        }
+        
+    }
+    //system.add_course(course)
+    
+    
+}
 void PostCommand::post(vector<string> line)
 {
-    if (line.size() < 7 || line[2] != "?" || line[3] != "title" || line[5] != "message")
+    if (line.size() < 7 || line[2] != "?" || line[3] != "title" /*|| line[5] != "message"*/)
     {
 
         throw BadRequestError();
     }
-    string title = line[4];
-    string message = line[6];
+    string whole_line = system.stick_string(line);
+    vector <string> line_quotation = system.cut_string(whole_line,"\"");
+    string title = line_quotation[1];
+    string message = line_quotation[3];
     system.current_user->add_post(title, message);
 
     // Notify connected users about the new post
@@ -159,13 +183,19 @@ void PostCommand::connect(string id)
 
 void GetCommand::get_courses()
 {
-    vector<Course *> all_courses = system.get_all_courses();
-    vector<string> line = system.get_line();
-    if (line.size() == 2)
-    {
-        /* code */
+
+}
+
+
+void GetCommand::view_notifications(vector<string> line){
+    if(line.size()!=3 || line[2]!="?"){
+        throw BadRequestError();
+    }
+    if(!system.current_user->view_notification()){
+        throw NotFoundError();
     }
 }
+
 
 void GetCommand::execute(string action)
 {
@@ -181,6 +211,9 @@ void GetCommand::execute(string action)
     else if (action == "post")
     {
         view_post(line);
+    }
+    else if(action == "notification"){
+       view_notifications(line);
     }
 }
 void GetCommand::personal_page(vector<string> line){

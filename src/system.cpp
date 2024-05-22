@@ -2,13 +2,19 @@
 
 using namespace std;
 
-System::System(const char *majors_path, const char *students_path, const char *professor_path, const char *courses_path)
+System::System(const char *majors_path, const char *students_path, const char *professor_path, const char *units_path)
 {
     set_professors(professor_path);
     set_majors(majors_path);
-    set_courses(courses_path);
+    set_units(units_path);
     set_students(students_path);
-    all_users.push_back(new Admin("0","UT_account","UT_account",0));
+    Admin* admin= new Admin("0", "UT_account", "UT_account", 0);
+    for (User* user : all_users)
+    {
+       admin->add_contact(user);
+    }
+    
+    all_users.push_back(admin);
     commands.push_back(new GetCommand(*this));
     commands.push_back(new PostCommand(*this));
     commands.push_back(new PutCommand(*this));
@@ -33,47 +39,59 @@ vector<string> System::get_line()
     return line;
 }
 
-
-vector<Course*>System::get_all_courses(){
-    return all_courses;
+vector<Unit *> System::get_all_units()
+{
+    return all_units;
 }
 
 
 
-bool System::is_natural_number(const std::string& str) {
+void System::add_course(Course* course){
+    all_courses.push_back(course);
+}
+
+
+bool System::is_natural_number(const std::string &str)
+{
     // Check if the string is empty
-    if (str.empty()) {
+    if (str.empty())
+    {
         return false;
     }
 
     // Check if each character is a digit
-    for (char ch : str) {
-        if (!std::isdigit(ch)) {
+    for (char ch : str)
+    {
+        if (!std::isdigit(ch))
+        {
             return false;
         }
     }
 
-    try {
+    try
+    {
         // Convert string to integer
         int num = std::stoi(str);
 
         // Check if the number is greater than zero
-        if (num <= 0) {
+        if (num <= 0)
+        {
             return false;
         }
-    } catch (const std::invalid_argument& e) {
+    }
+    catch (const std::invalid_argument &e)
+    {
         // Conversion failed, string contains non-digit characters
         return false;
-    } catch (const std::out_of_range& e) {
+    }
+    catch (const std::out_of_range &e)
+    {
         // Conversion failed, number is out of range
         return false;
     }
 
     return true;
 }
-
-
-
 
 void System::run()
 {
@@ -136,7 +154,7 @@ User *System::find_user(string id, string password)
             return all_users[i];
         }
     }
-    cout<<"login fuck";
+    cout << "login fuck";
     throw PermissionDeniedError();
 }
 
@@ -165,7 +183,16 @@ User *System::find_user(string id)
     return nullptr;
 }
 
-
+string System::stick_string(vector<string> line)
+{
+    string str;
+    str = str + line[0];
+    for (int i = 1; i < line.size(); i++)
+    {
+        str = str + " " + line[i];
+    }
+    return str;
+}
 
 void System::get_input()
 {
@@ -176,13 +203,11 @@ void System::get_input()
     if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET))
     {
         throw BadRequestError();
-        cout<<'c';
     }
 
     if (current_line.size() < 2)
     {
         throw BadRequestError();
-        cout<<'d';
     }
 
     for (Command *command : commands)
@@ -273,8 +298,16 @@ void System::set_professors(const char *path)
         int major_id = stoi(fields[2]);
         string position = fields[3];
         string password = fields[4];
+        string new_major;
+        for (Major *major : all_majors)
+        {
+            if (major_id == major->get_id())
+            {
+                new_major = major->get_name();
+            }
+        }
 
-        User *prof = new Professor(pid, name, password, major_id, position);
+        User *prof = new Professor(pid, name, password, major_id, position,new_major);
         all_users.push_back(prof);
     }
 }
@@ -305,14 +338,21 @@ void System::set_students(const char *path)
         int major_id = stoi(fields[2]);
         int semester = stoi(fields[3]);
         string password = fields[4];
-
+        string new_major;
+        for (Major *major : all_majors)
+        {
+            if (major_id == major->get_id())
+            {
+                new_major = major->get_name();
+            }
+        }
         // Create a new Student object and add it to the all_users vector
-        User *student = new Student(sid, name, password, major_id, semester);
+        User *student = new Student(sid, name, password, major_id, semester, new_major);
         all_users.push_back(student);
     }
 }
 
-void System::set_courses(const char *path)
+void System::set_units(const char *path)
 {
     vector<string> lines = read_csv(path);
     if (lines.empty())
@@ -345,9 +385,9 @@ void System::set_courses(const char *path)
             major_ids.push_back(stoi(mid_str));
         }
 
-        // Create a new Course object and add it to the all_courses vector
-        Course *new_course = new Course(cid, name, credit, prerequisite, major_ids);
-        all_courses.push_back(new_course);
+        // Create a new Unit object and add it to the all_Units vector
+        Unit *new_unit = new Unit(cid, name, credit, prerequisite, major_ids);
+        all_units.push_back(new_unit);
     }
 }
 
