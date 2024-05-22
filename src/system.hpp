@@ -32,9 +32,10 @@ public:
     void set_students(const char *path);
     void set_units(const char *path);
     void set_majors(const char *path);
+    void set_course(int course_id, const string& professor_id, int capacity, const string& time, const string& exam_date, int class_number);
+    vector<Course*> get_courses();
     void process_line();
-    void get_input();
-    void add_course(Course * course);    
+    void get_input();   
     string stick_string(vector<string> line);
     bool is_natural_number(const string &str);
     vector<Unit *> get_all_units();

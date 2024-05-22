@@ -46,8 +46,46 @@ vector<Unit *> System::get_all_units()
 
 
 
-void System::add_course(Course* course){
-    all_courses.push_back(course);
+void System::set_course(int course_id, const string& professor_id, int capacity, const string& time, const string& exam_date, int class_number) {
+    Unit* unit = nullptr;
+    for (Unit* u : all_units) {
+        if (u->get_id() == course_id) {
+            unit = u;
+            break;
+        }
+    }
+    if (unit == nullptr) {
+        throw NotFoundError();
+    }
+
+    User* user = find_user(professor_id);
+    if (user == nullptr || dynamic_cast<Professor*>(user) == nullptr) {
+        throw PermissionDeniedError();
+    }
+
+    Professor* professor = dynamic_cast<Professor*>(user);
+    if (find(unit->get_majors().begin(), unit->get_majors().end(), professor->get_major())==unit->get_majors().begin()) {
+        throw PermissionDeniedError();
+    }
+
+    for (Course* course : all_courses) {
+        if (course->get_prof_id() == professor_id && course->get_time() == time) {
+            throw PermissionDeniedError();
+        }
+    }
+
+    int new_course_id = all_courses.size() + 1;
+    Course* new_course = new Course(unit, professor_id, capacity, new_course_id, time, exam_date, class_number,professor->get_name());
+    all_courses.push_back(new_course);
+
+
+    for (User* user : all_users) {
+        user->get_notification(professor->get_id()+" "+professor->get_name()+ ": New Course Offering" );
+    }
+}
+
+vector<Course*> System::get_courses(){
+    return all_courses;
 }
 
 
@@ -200,7 +238,7 @@ void System::get_input()
     getline(cin, new_line);
     vector<string> current_line = cut_string(new_line, SPACE);
 
-    if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET))
+    if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET || current_line[2]!="?"))
     {
         throw BadRequestError();
     }
@@ -380,12 +418,11 @@ void System::set_units(const char *path)
 
         vector<string> major_id_strings = cut_string(fields[4], ";");
         vector<int> major_ids;
-        for (const auto &mid_str : major_id_strings)
+        for (string &mid_str : major_id_strings)
         {
             major_ids.push_back(stoi(mid_str));
         }
 
-        // Create a new Unit object and add it to the all_Units vector
         Unit *new_unit = new Unit(cid, name, credit, prerequisite, major_ids);
         all_units.push_back(new_unit);
     }

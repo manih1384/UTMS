@@ -20,7 +20,9 @@ using namespace std;
 class Unit {
 public:
     Unit(int id, const string& name, int credit, int prerequisite, const vector<int>& major_ids);
-    void display();
+    int get_id();
+    vector<int> get_majors();
+    string get_name();
 private:
     int id;
     string name;

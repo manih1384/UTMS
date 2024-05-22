@@ -88,26 +88,45 @@ void PostCommand::execute(string action)
         course_offer(system.get_line());
     }
 }
-void PostCommand::course_offer(vector<string> line){
-    if (system.current_user->get_id()!="0")
-    {
+void PostCommand::course_offer(vector<string> line) {
+    if (system.current_user->get_id() != "0") {
         throw PermissionDeniedError();
     }
-    if (line.size()!=15 || line[2]!="?")
-    {
+
+    if (line.size() != 15 || line[2] != "?") {
         throw BadRequestError();
     }
-    for (int i = 3; i < line.size(); i+=2)
-    {
-        if (line[i]!=COURSE_OFFER &&line[i]!=COURSE_ID &&line[i]!=CAPACITY &&line[i]!=PROFESSOR_ID &&line[i]!=CLASS_NUMBER&&line[i]!=EXAM_DATE&& line[i]!=TIME )
-        {
+
+    string course_id_str = "", professor_id = "", capacity_str = "", time = "", exam_date = "", class_number_str = "";
+
+    for (int i = 3; i < line.size(); i += 2) {
+        if (line[i] == "course_id") {
+            course_id_str = line[i + 1];
+        } else if (line[i] == "professor_id") {
+            professor_id = line[i + 1];
+        } else if (line[i] == "capacity") {
+            capacity_str = line[i + 1];
+        } else if (line[i] == "time") {
+            time = line[i + 1];
+        } else if (line[i] == "exam_date") {
+            exam_date = line[i + 1];
+        } else if (line[i] == "class_number") {
+            class_number_str = line[i + 1];
+        } else {
             throw BadRequestError();
         }
-        
     }
-    //system.add_course(course)
-    
-    
+
+    if (!system.is_natural_number(course_id_str) || !system.is_natural_number(professor_id) ||
+        !system.is_natural_number(capacity_str) || !system.is_natural_number(class_number_str)) {
+        throw BadRequestError();
+    }
+
+    int course_id = stoi(course_id_str);
+    int capacity = stoi(capacity_str);
+    int class_number = stoi(class_number_str);
+    system.set_course(course_id, professor_id, capacity, time, exam_date, class_number);
+    cout << "OK" << endl;
 }
 void PostCommand::post(vector<string> line)
 {
@@ -121,12 +140,6 @@ void PostCommand::post(vector<string> line)
     string title = line_quotation[1];
     string message = line_quotation[3];
     system.current_user->add_post(title, message);
-
-    // Notify connected users about the new post
-    // for (User *contact : system.current_user->get_all_contacts())
-    // {
-    //     contact->notify("New post from " + system.current_user->get_name() + ": " + title);
-    // }
 
     cout << "OK" << endl;
 }
@@ -181,9 +194,38 @@ void PostCommand::connect(string id)
     }
 }
 
-void GetCommand::get_courses()
+void GetCommand::get_courses(vector<string> line)
 {
+    vector<Course*>courses = system.get_courses();
+    if (line.size()==5)
+    {
+        string id_str = line[4];
+        if (!system.is_natural_number(id_str)|| line[3]!="id")
+        {
+            throw BadRequestError();
+        }
+        for (Course* course: courses)
+        {
+            if (course->get_id()==stoi(id_str))
+            {
+                course->display_completely();
+            }
+            
+        }
+        
+        
+    }
+    else if (line.size()==3){
 
+    }
+    else
+    {
+        throw BadRequestError();
+    }
+    
+    
+    
+    
 }
 
 
@@ -202,9 +244,9 @@ void GetCommand::execute(string action)
     vector<string> line = system.get_line();
     if (action == "courses")
     {
-        get_courses();
+        get_courses(line);
     }
-    if (action == "personal_page")
+    else if (action == "personal_page")
     {
         personal_page(line);
     }

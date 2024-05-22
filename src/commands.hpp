@@ -28,7 +28,7 @@ public:
     string get_type() override { return "GET"; }
     vector<string> get_valid_commands() override;
     void execute(string action) override;
-    void get_courses();
+    void get_courses(vector<string> line);
     void personal_page(vector<string> line);
     void view_post(vector<string> line);
     void view_notifications(vector<string> line);

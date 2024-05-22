@@ -21,6 +21,17 @@ string User::get_pass()
     return password;
 }
 
+
+
+string User::get_name()
+{
+    return name;
+}
+
+
+
+
+
 vector<User *> User::get_all_contacts()
 {
     return contacts;
@@ -88,6 +99,15 @@ Post *User::get_post_by_id(int post_id)
     }
     return nullptr;
 }
+
+
+
+int User::get_major(){
+    return major_id;
+}
+
+
+
 
 void Professor::display_profile()
 {
