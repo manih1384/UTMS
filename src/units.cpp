@@ -25,3 +25,8 @@ vector<int> Unit::get_majors(){
 string Unit::get_name(){
     return name;
 }
+
+
+int Unit::get_prerequisite(){
+    return prerequisite;
+}

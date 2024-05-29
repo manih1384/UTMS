@@ -1,19 +1,19 @@
 #include "system.hpp"
-
+#include "utilityfunctions.hpp"
 using namespace std;
 
 System::System(const char *majors_path, const char *students_path, const char *professor_path, const char *units_path)
 {
-    set_professors(professor_path);
     set_majors(majors_path);
     set_units(units_path);
+    set_professors(professor_path);
     set_students(students_path);
-    Admin* admin= new Admin("0", "UT_account", "UT_account", 0);
-    for (User* user : all_users)
+    Admin *admin = new Admin("0", "UT_account", "UT_account", 0);
+    for (User *user : all_users)
     {
-       admin->add_contact(user);
+        admin->add_contact(user);
     }
-    
+
     all_users.push_back(admin);
     commands.push_back(new GetCommand(*this));
     commands.push_back(new PostCommand(*this));
@@ -21,19 +21,6 @@ System::System(const char *majors_path, const char *students_path, const char *p
     commands.push_back(new DeleteCommand(*this));
 }
 
-vector<string> System::read_csv(const char path[256])
-{
-    vector<string> lines;
-    ifstream file_name;
-    string new_line;
-    file_name.open(path);
-    while (getline(file_name, new_line))
-    {
-        lines.push_back(new_line);
-    }
-    file_name.close();
-    return lines;
-}
 vector<string> System::get_line()
 {
     return line;
@@ -44,100 +31,84 @@ vector<Unit *> System::get_all_units()
     return all_units;
 }
 
-
-
-void System::set_course(int course_id, const string& professor_id, int capacity, const string& time, const string& exam_date, int class_number) {
-    Unit* unit = nullptr;
-    for (Unit* u : all_units) {
-        if (u->get_id() == course_id) {
+void System::set_course(int course_id, const string &professor_id, int capacity, const string &time, const string &exam_date, int class_number)
+{
+    Unit *unit = nullptr;
+    for (Unit *u : all_units)
+    {
+        if (u->get_id() == course_id)
+        {
             unit = u;
             break;
         }
     }
-    if (unit == nullptr) {
+    if (unit == nullptr)
+    {
         throw NotFoundError();
     }
 
-    User* user = find_user(professor_id);
-    if (user == nullptr || dynamic_cast<Professor*>(user) == nullptr) {
+    User *user = find_user(professor_id);
+    if (user == nullptr || dynamic_cast<Professor *>(user) == nullptr)
+    {
         throw PermissionDeniedError();
     }
 
-    Professor* professor = dynamic_cast<Professor*>(user);
-    if (find(unit->get_majors().begin(), unit->get_majors().end(), professor->get_major())==unit->get_majors().begin()) {
+    Professor *professor = dynamic_cast<Professor *>(user);
+
+    if (find(unit->get_majors().begin(), unit->get_majors().end(), professor->get_major()) == unit->get_majors().end())
+    {
         throw PermissionDeniedError();
     }
+    if (unit->get_majors().size()==1 && unit->get_majors()[0]!=professor->get_major())
+    {
+        throw PermissionDeniedError();
+    }
+    
 
-    for (Course* course : all_courses) {
-        if (course->get_prof_id() == professor_id && course->get_time() == time) {
+    for (Course *course : all_courses)
+    {
+        if (course->get_prof_id() == professor_id && has_time_collision(course->get_time(), time))
+        {
             throw PermissionDeniedError();
         }
     }
 
     int new_course_id = all_courses.size() + 1;
-    Course* new_course = new Course(unit, professor_id, capacity, new_course_id, time, exam_date, class_number,professor->get_name());
+    Course *new_course = new Course(unit, professor_id, capacity, new_course_id, time, exam_date, class_number, professor->get_name());
     all_courses.push_back(new_course);
 
-
-    for (User* user : all_users) {
-        user->get_notification(professor->get_id()+" "+professor->get_name()+ ": New Course Offering" );
+    for (User *user : all_users)
+    {
+        user->get_notification(professor->get_id() + " " + professor->get_name() + ": New Course Offering");
     }
 }
 
-vector<Course*> System::get_courses(){
+vector<Course *> System::get_courses()
+{
     return all_courses;
 }
-
-
-bool System::is_natural_number(const std::string &str)
+Course *System::find_course(int course_id)
 {
-    // Check if the string is empty
-    if (str.empty())
+    for (Course *course : all_courses)
     {
-        return false;
-    }
-
-    // Check if each character is a digit
-    for (char ch : str)
-    {
-        if (!std::isdigit(ch))
+        if (course->get_id() == course_id)
         {
-            return false;
+            return course;
         }
     }
-
-    try
-    {
-        // Convert string to integer
-        int num = std::stoi(str);
-
-        // Check if the number is greater than zero
-        if (num <= 0)
-        {
-            return false;
-        }
-    }
-    catch (const std::invalid_argument &e)
-    {
-        // Conversion failed, string contains non-digit characters
-        return false;
-    }
-    catch (const std::out_of_range &e)
-    {
-        // Conversion failed, number is out of range
-        return false;
-    }
-
-    return true;
+    return nullptr;
 }
 
 void System::run()
 {
-    while (true)
+    string new_line;
+    while (getline(cin, new_line))
     {
         try
         {
-            get_input();
+
+            get_input(new_line);
+            
             process_line();
         }
         catch (const exception &e)
@@ -192,7 +163,6 @@ User *System::find_user(string id, string password)
             return all_users[i];
         }
     }
-    cout << "login fuck";
     throw PermissionDeniedError();
 }
 
@@ -232,24 +202,15 @@ string System::stick_string(vector<string> line)
     return str;
 }
 
-void System::get_input()
+void System::get_input(string new_line)
 {
-    string new_line;
-    getline(cin, new_line);
     vector<string> current_line = cut_string(new_line, SPACE);
-
-    if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET || current_line[2]!="?"))
+        if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET))
     {
         throw BadRequestError();
     }
-
-    if (current_line.size() < 2)
-    {
-        throw BadRequestError();
-    }
-
     for (Command *command : commands)
-    {
+    {   
         if (command->get_type() == current_line[0])
         {
             vector<string> all_commands = command->get_valid_commands();
@@ -261,54 +222,6 @@ void System::get_input()
         }
     }
     throw NotFoundError();
-}
-
-vector<string> System::cut_string(string str, string delim)
-{
-
-    int char_count = 0;
-    int head = 0;
-    vector<string> string_list;
-    string new_string;
-    int num_of_delim = count(str.begin(), str.end(), delim[0]);
-
-    for (int i = 0; i < str.size(); i++)
-    {
-        string separator = str.substr(i, 1);
-        char_count += 1;
-        string a;
-        if (separator == delim)
-        {
-            if (head == 0)
-            {
-                a = str.substr(head, char_count - 1);
-                string_list.push_back(a);
-                head = i;
-                char_count = 0;
-            }
-            else
-            {
-                a = str.substr(head + 1, char_count - 1);
-                string_list.push_back(a);
-                head = i;
-                char_count = 0;
-            }
-        }
-        else if (num_of_delim == 0)
-        {
-            string_list.push_back(str);
-            break;
-        }
-
-        else if (i == str.size() - 1)
-        {
-            a = str.substr(head + 1, char_count);
-            string_list.push_back(a);
-            head = i;
-            char_count = 0;
-        }
-    }
-    return string_list;
 }
 
 void System::set_professors(const char *path)
@@ -345,7 +258,7 @@ void System::set_professors(const char *path)
             }
         }
 
-        User *prof = new Professor(pid, name, password, major_id, position,new_major);
+        User *prof = new Professor(pid, name, password, major_id, position, new_major);
         all_users.push_back(prof);
     }
 }
@@ -359,7 +272,7 @@ void System::set_students(const char *path)
         return;
     }
 
-    // Skip the header line
+    
     lines.erase(lines.begin());
 
     for (const auto &line : lines)
@@ -384,7 +297,6 @@ void System::set_students(const char *path)
                 new_major = major->get_name();
             }
         }
-        // Create a new Student object and add it to the all_users vector
         User *student = new Student(sid, name, password, major_id, semester, new_major);
         all_users.push_back(student);
     }

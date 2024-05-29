@@ -31,3 +31,26 @@ void Course::display_completely(){
 void Course::display_preview(){
     cout<< id<<SPACE<<unit->get_name()<<SPACE<<capacity<<SPACE<<prof_name<<endl;
 }
+
+
+int Course::get_min_semester(){
+    return unit->get_prerequisite();
+}
+
+vector<int>Course::get_majors(){
+    return unit->get_majors();
+}
+
+
+
+ string Course::get_name(){
+    return unit->get_name();
+ }
+
+int Course::get_class_num(){
+    return class_number;
+}
+
+string Course::get_exam_date(){
+    return exam_date;
+}

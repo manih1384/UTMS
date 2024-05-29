@@ -21,16 +21,10 @@ string User::get_pass()
     return password;
 }
 
-
-
 string User::get_name()
 {
     return name;
 }
-
-
-
-
 
 vector<User *> User::get_all_contacts()
 {
@@ -60,9 +54,8 @@ bool User::view_notification()
     {
         return false;
     }
-    for (string notification : notifications)
-    {
-        cout << notification << endl;
+    for (int i=notifications.size()-1;i>=0;i--){
+        cout<< notifications[i]<<endl;
     }
     notifications.clear();
     return true;
@@ -100,24 +93,72 @@ Post *User::get_post_by_id(int post_id)
     return nullptr;
 }
 
-
-
-int User::get_major(){
+int User::get_major()
+{
     return major_id;
 }
 
+vector<Course *> User::get_courses()
+{
+    return courses;
+}
 
-
+int Student::get_semester()
+{
+    return semester;
+}
 
 void Professor::display_profile()
 {
-    cout << name << " " << major_id << " " << position;
+    cout << name << " " << major << " " << position;
+    if (!courses.empty())
+    {
+        cout << courses[0]->get_name();
+    }
+    for (int i = 1; i < courses.size(); i++)
+    {
+        cout << "," << courses[i]->get_name();
+    }
     cout << endl;
 }
 
+
+
+
+Course* Student::find_course(int course_id)
+{
+    for (Course* course : courses)
+    {
+        if (course->get_id() == course_id)
+        {
+            return course;
+        }
+    }
+    return nullptr;
+}
+
+void Student::remove_course(Course* course)
+{
+    courses.erase(remove(courses.begin(), courses.end(), course), courses.end());
+}
+
+
+
+
+
+
 void Student::display_profile()
 {
-    cout << name << " " << major_id << " " << semester;
+    cout << name << " " << major << " " << semester << " ";
+    if (!courses.empty())
+    {
+        cout << courses[0]->get_name();
+    }
+    for (int i = 1; i < courses.size(); i++)
+    {
+        cout << "," << courses[i]->get_name();
+    }
+
     cout << endl;
 }
 
@@ -129,8 +170,17 @@ void Admin::display_profile()
 
 void User::display_posts()
 {
-    for (Post *post : posts)
+    for (int i=posts.size()-1;i>=0;i--)
     {
-        cout << post->get_id() << " " << post->get_title() << endl;
+        cout << posts[i]->get_id() << " " << posts[i]->get_title() << endl;
     }
+}
+
+void User::add_course(Course *course)
+{
+    courses.push_back(course);
+}
+
+void User::remove_course()
+{
 }

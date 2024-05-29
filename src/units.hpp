@@ -23,6 +23,7 @@ public:
     int get_id();
     vector<int> get_majors();
     string get_name();
+    int get_prerequisite();
 private:
     int id;
     string name;

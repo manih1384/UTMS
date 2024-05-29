@@ -5,6 +5,7 @@
 #include "user.hpp"
 #include "courses.hpp"
 #include "units.hpp"
+#include "utilityfunctions.hpp"
 using namespace std;
 class System;
 class Command
@@ -32,7 +33,7 @@ public:
     void personal_page(vector<string> line);
     void view_post(vector<string> line);
     void view_notifications(vector<string> line);
-
+    void view_courses(vector<string> line);
 };
 
 class PostCommand : public Command
@@ -57,6 +58,7 @@ public:
     string get_type() override;
     vector<string> get_valid_commands() override;
     void execute(string action) override;
+    void register_course(vector<string> line);
 };
 
 class DeleteCommand : public Command
@@ -67,4 +69,5 @@ public:
     vector<string> get_valid_commands() override;
     void execute(string action) override;
     void delete_post( vector<string> line);
+    void delete_course(vector<string> line);
 };

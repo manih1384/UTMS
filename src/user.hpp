@@ -10,7 +10,7 @@
 #include <iomanip>
 #include "post.hpp"
 #include "majors.hpp"
-
+#include "courses.hpp"
 using namespace std;
 
 class User
@@ -32,6 +32,9 @@ public:
     void send_notification(string notification);
     void get_notification(string notification);
     bool view_notification();
+    vector<Course *> get_courses();
+    void add_course(Course *course);
+    void remove_course();
 
 protected:
     string id;
@@ -40,7 +43,7 @@ protected:
     vector<User *> contacts;
     vector<Post *> posts;
     int next_post_id = 1;
-    vector<string> course;
+    vector<Course *> courses;
     vector<string> notifications;
 };
 
@@ -49,6 +52,9 @@ class Student : public User
 public:
     Student(string id, const string &name, const string &password, int major_id, int semester, string major);
     void display_profile() override;
+    int get_semester();
+    void remove_course(Course *course);
+    Course *find_course(int course_id);
 
 private:
     int semester;

@@ -26,6 +26,11 @@ public:
     int get_id();
     void display_completely();
     void display_preview();
+    int get_min_semester();
+    vector<int> get_majors();
+    string get_name();
+    string get_exam_date();
+    int get_class_num();
 private:
     Unit*unit;
     string prof_id;
