@@ -8,16 +8,17 @@
 #include <utility>
 #include <iomanip>
 #include "system.hpp"
+#include "interface.hpp"
 using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    string majors_path = argv[1];
-    string students_path = argv[2];
-    string professor_path = argv[3];
-    string units_path = argv[4];
-    System new_system(argv[1],argv[2],argv[3],argv[4]);
-    new_system.run();
+    char const *majors_path = argv[1];
+    char const * students_path = argv[2];
+    char const * professor_path = argv[4];
+    char const * units_path = argv[3];
+    Interface interface(majors_path,students_path,units_path,professor_path);
+    interface.run();
     return 0;
 }
 

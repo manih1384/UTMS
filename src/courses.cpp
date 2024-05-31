@@ -54,3 +54,19 @@ int Course::get_class_num(){
 string Course::get_exam_date(){
     return exam_date;
 }
+
+
+void Course::add_post(string title, string message,string image)
+{
+    posts.push_back(new Post(next_post_id, title, message,image));
+    next_post_id++;
+}
+
+
+void Course::display_posts()
+{
+    for (int i=posts.size()-1;i>=0;i--)
+    {
+        cout << posts[i]->get_id() << " " << posts[i]->get_title() << endl;
+    }
+}

@@ -81,13 +81,13 @@ bool has_time_collision(string date1, string date2)
 
 bool is_natural_number(const std::string &str)
 {
-    // Check if the string is empty
+    
     if (str.empty())
     {
         return false;
     }
 
-    // Check if each character is a digit
+    
     for (char ch : str)
     {
         if (!std::isdigit(ch))
@@ -98,10 +98,10 @@ bool is_natural_number(const std::string &str)
 
     try
     {
-        // Convert string to integer
+       
         int num = std::stoi(str);
 
-        // Check if the number is greater than zero
+       
         if (num <= 0)
         {
             return false;
@@ -114,7 +114,7 @@ bool is_natural_number(const std::string &str)
     }
     catch (const std::out_of_range &e)
     {
-        // Conversion failed, number is out of range
+       
         return false;
     }
 

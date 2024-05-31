@@ -34,6 +34,7 @@ public:
     void view_post(vector<string> line);
     void view_notifications(vector<string> line);
     void view_courses(vector<string> line);
+    void course_channel(vector<string> line);
 };
 
 class PostCommand : public Command
@@ -48,8 +49,11 @@ public:
     void execute(string action) override;
     void post(vector<string> line);
     void course_offer(vector<string> line);
+    void profile_photo(vector<string> line);
+    void course_post(vector<string> line);
+
 private:
-}; 
+};
 
 class PutCommand : public Command
 {
@@ -68,6 +72,6 @@ public:
     string get_type() override;
     vector<string> get_valid_commands() override;
     void execute(string action) override;
-    void delete_post( vector<string> line);
+    void delete_post(vector<string> line);
     void delete_course(vector<string> line);
 };

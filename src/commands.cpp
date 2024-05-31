@@ -5,15 +5,14 @@
 #include "utilityfunctions.hpp"
 using namespace std;
 
-
 vector<string> GetCommand::get_valid_commands()
 {
-    return {MY_COURSES, COURSES, "personal_page", "post", NOTIFICATION};
+    return {MY_COURSES, COURSES, PERSONAL_PAGE, "post", NOTIFICATION};
 }
 
 vector<string> PostCommand::get_valid_commands()
 {
-    return {COURSE_OFFER, LOGIN, LOGOUT, "post", CONNECT};
+    return {COURSE_OFFER, LOGIN, LOGOUT, "post", CONNECT, PROFILE_PHOTO};
 }
 
 vector<string> PutCommand::get_valid_commands()
@@ -86,10 +85,137 @@ void PostCommand::execute(string action)
     {
         course_offer(system.get_line());
     }
+    else if (line[1] == PROFILE_PHOTO)
+    {
+        profile_photo(system.get_line());
+    }
+    else if (line[1] == COURSE_POST)
+    {
+        course_post(system.get_line());
+    }
 }
+
+void PostCommand::profile_photo(vector<string> line)
+{
+    if (line.size() != 5 || line[2] != QUESTION_MARK || line[3] != "photo")
+    {
+        throw BadRequestError();
+    }
+
+    system.current_user->set_photo(line[4]);
+    cout << OK;
+}
+
+void PostCommand::course_post(vector<string> line)
+{
+    if (line[2] != QUESTION_MARK)
+    {
+
+        throw BadRequestError();
+    }
+    line.erase(line.begin(), line.begin() + 3);
+    string whole_line = system.stick_string(line, " ");
+    vector<string> line_quotation = cut_string(whole_line, QUOTATION);
+    if (line_quotation.size() != 5 && line_quotation.size() != 4)
+    {
+        throw BadRequestError();
+    }
+    string title;
+    string message;
+    string image = "";
+    string id;
+    bool has_title = false;
+    bool has_message = false;
+    while (line.size() > 1 && line_quotation.size() > 0)
+    {
+
+        if (line[0] == TITLE && !has_title)
+        {
+            title = line_quotation[1];
+            has_title = true;
+            line_quotation.erase(line_quotation.begin(), line_quotation.begin() + 2);
+            if (line_quotation.size() == 0)
+            {
+                break;
+            }
+            string whole_line = system.stick_string(line_quotation, "\"");
+            if (whole_line[0] == ' ')
+            {
+                whole_line.erase(whole_line.begin());
+            }
+            line = cut_string(whole_line, " ");
+            if (line.size() > 0 && line[0] == "")
+            {
+                line.erase(line.begin());
+            }
+        }
+        else if (line[0] == MESSAGE && !has_message)
+        {
+            message = line_quotation[1];
+            has_message = true;
+            line_quotation.erase(line_quotation.begin(), line_quotation.begin() + 2);
+            if (line_quotation.size() == 0)
+            {
+                break;
+            }
+
+            string whole_line = system.stick_string(line_quotation, "\"");
+            if (whole_line[0] == ' ')
+            {
+                whole_line.erase(whole_line.begin());
+            }
+
+            line = cut_string(whole_line, " ");
+            if (line.size() > 0 && line[0] == "")
+            {
+                line.erase(line.begin());
+            }
+        }
+        else if (line[0] == IMAGE)
+        {
+            image = line[1];
+            line.erase(line.begin(), line.begin() + 2);
+        }
+        else if (line[0] == ID)
+        {
+            id = line[1];
+            line.erase(line.begin(), line.begin() + 2);
+        }
+        else
+        {
+            throw BadRequestError();
+        }
+    }
+    if (!has_message || !has_title || !is_natural_number(id))
+    {
+        throw BadRequestError();
+    }
+
+    Course *course = system.find_course(stoi(id));
+    if (course == nullptr)
+    {
+        throw NotFoundError();
+    }
+    if (system.current_user->type() != PROFESSOR || system.current_user->has_course(course))
+    {
+        throw PermissionDeniedError();
+    }
+
+
+    course->add_post(QUOTATION + title + QUOTATION, QUOTATION + message + QUOTATION, image);
+    for (User *user : system.get_all_users())
+    {
+        if (user->has_course(course) && user->type() != PROFESSOR)
+        {
+            user->get_notification(course->get_id() + " " + course->get_name() + ": New Course Post");
+        }
+    }
+
+    cout << OK << endl;
+}
+
 void PostCommand::course_offer(vector<string> line)
 {
-
     if (system.current_user->get_id() != "0")
     {
         throw PermissionDeniedError();
@@ -120,7 +246,7 @@ void PostCommand::course_offer(vector<string> line)
         {
             time = line[i + 1];
         }
-        else if (line[i] ==EXAM_DATE)
+        else if (line[i] == EXAM_DATE)
         {
             exam_date = line[i + 1];
         }
@@ -148,31 +274,85 @@ void PostCommand::course_offer(vector<string> line)
 }
 void PostCommand::post(vector<string> line)
 {
-    if (line.size() < 7 || line[2] != QUESTION_MARK)
+    if (line[2] != QUESTION_MARK)
     {
 
         throw BadRequestError();
     }
-    string whole_line = system.stick_string(line);
+    line.erase(line.begin(), line.begin() + 3);
+    string whole_line = system.stick_string(line, " ");
     vector<string> line_quotation = cut_string(whole_line, QUOTATION);
+    if (line_quotation.size() != 5 && line_quotation.size() != 4)
+    {
+        throw BadRequestError();
+    }
     string title;
     string message;
-    if (line_quotation[0] == "POST post ? title " && line_quotation[2] == " message ")
+    string image = "";
+    bool has_title = false;
+    bool has_message = false;
+    while (line.size() > 1 && line_quotation.size() > 0)
     {
-        title = line_quotation[1];
-        message = line_quotation[3];
+
+        if (line[0] == TITLE && !has_title)
+        {
+            title = line_quotation[1];
+            has_title = true;
+            line_quotation.erase(line_quotation.begin(), line_quotation.begin() + 2);
+            if (line_quotation.size() == 0)
+            {
+                break;
+            }
+            string whole_line = system.stick_string(line_quotation, "\"");
+            if (whole_line[0] == ' ')
+            {
+                whole_line.erase(whole_line.begin());
+            }
+            line = cut_string(whole_line, " ");
+            if (line.size() > 0 && line[0] == "")
+            {
+                line.erase(line.begin());
+            }
+        }
+        else if (line[0] == MESSAGE && !has_message)
+        {
+            message = line_quotation[1];
+            has_message = true;
+            line_quotation.erase(line_quotation.begin(), line_quotation.begin() + 2);
+            if (line_quotation.size() == 0)
+            {
+                break;
+            }
+
+            string whole_line = system.stick_string(line_quotation, "\"");
+            if (whole_line[0] == ' ')
+            {
+                whole_line.erase(whole_line.begin());
+            }
+
+            line = cut_string(whole_line, " ");
+            if (line.size() > 0 && line[0] == "")
+            {
+                line.erase(line.begin());
+            }
+        }
+        else if (line[0] == IMAGE)
+        {
+            image = line[1];
+            line.erase(line.begin(), line.begin() + 2);
+        }
+        else
+        {
+            throw BadRequestError();
+        }
     }
-    else if (line_quotation[0] == "POST post ? message " && line_quotation[2] == " title ")
-    {
-        title = line_quotation[3];
-        message = line_quotation[1];
-    }
-    else
+    if (!has_message || !has_title)
     {
         throw BadRequestError();
     }
 
-    system.current_user->add_post(QUOTATION + title + QUOTATION, QUOTATION + message + QUOTATION);
+    // cout<<title<<" "<<message<<" "<<image;
+    system.current_user->add_post(QUOTATION + title + QUOTATION, QUOTATION + message + QUOTATION, image);
 
     cout << OK << endl;
 }
@@ -236,6 +416,22 @@ void PostCommand::connect(string id)
     cout << OK << endl;
 }
 
+
+
+
+
+void GetCommand::course_channel(vector<string> line){
+    if (line.size() != 5 || line[2] != QUESTION_MARK || line[3] != ID || !is_natural_number(line[4]))
+    {
+        throw BadRequestError();
+    }
+    Course *course = system.find_course(stoi(line[4]));
+    course->display_completely();
+    course->display_posts();
+}
+
+
+
 void GetCommand::get_courses(vector<string> line)
 {
     vector<Course *> courses = system.get_courses();
@@ -298,7 +494,7 @@ void GetCommand::execute(string action)
     {
         get_courses(line);
     }
-    else if (action == "personal_page")
+    else if (action == PERSONAL_PAGE)
     {
         personal_page(line);
     }
@@ -314,6 +510,9 @@ void GetCommand::execute(string action)
     {
         view_courses(line);
     }
+    else if (action ==COURSE_CHANNEL){
+        course_channel(line);
+    }
 }
 void GetCommand::personal_page(vector<string> line)
 {
@@ -322,6 +521,11 @@ void GetCommand::personal_page(vector<string> line)
         throw BadRequestError();
     }
     User *user = system.find_user(line[4]);
+    if (user==nullptr)
+    {
+        throw NotFoundError();
+    }
+    
     user->display_profile();
     user->display_posts();
 }

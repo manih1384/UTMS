@@ -2,19 +2,10 @@
 #include "utilityfunctions.hpp"
 using namespace std;
 
-System::System(const char *majors_path, const char *students_path, const char *professor_path, const char *units_path)
-{
-    set_majors(majors_path);
-    set_units(units_path);
-    set_professors(professor_path);
-    set_students(students_path);
-    Admin *admin = new Admin("0", "UT_account", "UT_account", 0);
-    for (User *user : all_users)
-    {
-        admin->add_contact(user);
-    }
+System::System(vector<Major *> all_majors, vector<Unit *> all_units, vector<User *> all_users)
+    : all_majors(all_majors), all_units(all_units), all_users(all_users)
+{   
 
-    all_users.push_back(admin);
     commands.push_back(new GetCommand(*this));
     commands.push_back(new PostCommand(*this));
     commands.push_back(new PutCommand(*this));
@@ -59,11 +50,10 @@ void System::set_course(int course_id, const string &professor_id, int capacity,
     {
         throw PermissionDeniedError();
     }
-    if (unit->get_majors().size()==1 && unit->get_majors()[0]!=professor->get_major())
+    if (unit->get_majors().size() == 1 && unit->get_majors()[0] != professor->get_major())
     {
         throw PermissionDeniedError();
     }
-    
 
     for (Course *course : all_courses)
     {
@@ -99,27 +89,9 @@ Course *System::find_course(int course_id)
     return nullptr;
 }
 
-void System::run()
+void System::run(vector<string> new_line)
 {
-    string new_line;
-    while (getline(cin, new_line))
-    {
-        try
-        {
-
-            get_input(new_line);
-            
-            process_line();
-        }
-        catch (const exception &e)
-        {
-            cerr << e.what() << '\n';
-        }
-    }
-}
-void System::process_line()
-{
-
+    line=new_line;
     for (Command *command : commands)
     {
         if (line[0] == command->get_type())
@@ -128,6 +100,15 @@ void System::process_line()
         }
     }
 }
+
+
+vector<User *>System::get_all_users(){
+    return all_users;
+}
+
+
+
+
 User *System::find_user(string id, string password)
 {
     bool flag_id = false;
@@ -141,6 +122,7 @@ User *System::find_user(string id, string password)
     }
     if (!flag_id)
     {
+
         throw NotFoundError();
     }
     bool flag_pass = false;
@@ -191,181 +173,13 @@ User *System::find_user(string id)
     return nullptr;
 }
 
-string System::stick_string(vector<string> line)
+string System::stick_string(vector<string> line,string delim)
 {
     string str;
     str = str + line[0];
     for (int i = 1; i < line.size(); i++)
     {
-        str = str + " " + line[i];
+        str = str + delim + line[i];
     }
     return str;
-}
-
-void System::get_input(string new_line)
-{
-    vector<string> current_line = cut_string(new_line, SPACE);
-        if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET))
-    {
-        throw BadRequestError();
-    }
-    for (Command *command : commands)
-    {   
-        if (command->get_type() == current_line[0])
-        {
-            vector<string> all_commands = command->get_valid_commands();
-            if (find(all_commands.begin(), all_commands.end(), current_line[1]) != all_commands.end())
-            {
-                line = current_line;
-                return;
-            }
-        }
-    }
-    throw NotFoundError();
-}
-
-void System::set_professors(const char *path)
-{
-    vector<string> lines = read_csv(path);
-    if (lines.empty())
-    {
-        cerr << "Failed to read CSV file: " << path << endl;
-        return;
-    }
-
-    lines.erase(lines.begin());
-
-    for (const auto &line : lines)
-    {
-        vector<string> fields = cut_string(line, ",");
-        if (fields.size() != 5)
-        {
-            cerr << "Invalid line format: " << line << endl;
-            continue;
-        }
-
-        string pid = fields[0];
-        string name = fields[1];
-        int major_id = stoi(fields[2]);
-        string position = fields[3];
-        string password = fields[4];
-        string new_major;
-        for (Major *major : all_majors)
-        {
-            if (major_id == major->get_id())
-            {
-                new_major = major->get_name();
-            }
-        }
-
-        User *prof = new Professor(pid, name, password, major_id, position, new_major);
-        all_users.push_back(prof);
-    }
-}
-
-void System::set_students(const char *path)
-{
-    vector<string> lines = read_csv(path);
-    if (lines.empty())
-    {
-        cerr << "Failed to read CSV file: " << path << endl;
-        return;
-    }
-
-    
-    lines.erase(lines.begin());
-
-    for (const auto &line : lines)
-    {
-        vector<string> fields = cut_string(line, ",");
-        if (fields.size() != 5)
-        {
-            cerr << "Invalid line format: " << line << endl;
-            continue;
-        }
-
-        string sid = fields[0];
-        string name = fields[1];
-        int major_id = stoi(fields[2]);
-        int semester = stoi(fields[3]);
-        string password = fields[4];
-        string new_major;
-        for (Major *major : all_majors)
-        {
-            if (major_id == major->get_id())
-            {
-                new_major = major->get_name();
-            }
-        }
-        User *student = new Student(sid, name, password, major_id, semester, new_major);
-        all_users.push_back(student);
-    }
-}
-
-void System::set_units(const char *path)
-{
-    vector<string> lines = read_csv(path);
-    if (lines.empty())
-    {
-        cerr << "Failed to read CSV file: " << path << endl;
-        return;
-    }
-
-    // Skip the header line
-    lines.erase(lines.begin());
-
-    for (const auto &line : lines)
-    {
-        vector<string> fields = cut_string(line, ",");
-        if (fields.size() != 5)
-        {
-            cerr << "Invalid line format: " << line << endl;
-            continue;
-        }
-
-        int cid = stoi(fields[0]);
-        string name = fields[1];
-        int credit = stoi(fields[2]);
-        int prerequisite = stoi(fields[3]);
-
-        vector<string> major_id_strings = cut_string(fields[4], ";");
-        vector<int> major_ids;
-        for (string &mid_str : major_id_strings)
-        {
-            major_ids.push_back(stoi(mid_str));
-        }
-
-        Unit *new_unit = new Unit(cid, name, credit, prerequisite, major_ids);
-        all_units.push_back(new_unit);
-    }
-}
-
-void System::set_majors(const char *path)
-{
-    vector<string> lines = read_csv(path);
-    if (lines.empty())
-    {
-        cerr << "Failed to read CSV file: " << path << endl;
-        return;
-    }
-
-    // Skip the header line
-    lines.erase(lines.begin());
-
-    for (const auto &line : lines)
-    {
-        vector<string> fields = cut_string(line, ",");
-        if (fields.size() != 2)
-        {
-            cerr << "Invalid line format: " << line << endl;
-            continue;
-        }
-
-        int mid = stoi(fields[0]);
-        string major = fields[1];
-
-        // Create a new Major object and add it to the all_majors vector
-        Major *new_major = new Major(mid, major);
-        all_majors.push_back(new_major);
-    }
 }

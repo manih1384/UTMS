@@ -60,12 +60,26 @@ bool User::view_notification()
     notifications.clear();
     return true;
 }
-void User::add_post(string title, string message)
+void User::add_post(string title, string message,string image)
 {
-    posts.push_back(new Post(next_post_id, title, message));
+    posts.push_back(new Post(next_post_id, title, message,image));
     next_post_id++;
     send_notification(id + " " + name + ": " + "New Post");
 }
+
+bool User::has_course(Course* target_course){
+    bool flag = false;
+    for(Course* course: courses){
+        if( course->get_id()==target_course->get_id()){
+            flag=true;
+        }
+    }
+    return flag;
+}
+void User::set_photo(string new_photo){
+    photo=new_photo;
+}
+
 
 bool User::delete_post(int id)
 {
@@ -144,8 +158,15 @@ void Student::remove_course(Course* course)
 
 
 
-
-
+string Student::type(){
+    return "student";
+}
+string Admin::type(){
+    return "admin";
+}
+string Professor::type(){
+    return "professor";
+}
 
 void Student::display_profile()
 {

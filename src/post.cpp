@@ -14,3 +14,6 @@ std::string Post::get_title() const {
 std::string Post::get_message() const {
     return message;
 }
+
+Post::Post(int id, std::string title,  std::string message,std::string image)
+    : id(id), title(title), message(message),image(image) {}

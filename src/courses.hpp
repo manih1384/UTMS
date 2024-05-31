@@ -8,19 +8,14 @@
 #include <sstream>
 #include <utility>
 #include <iomanip>
+#include "post.hpp"
 #include "units.hpp"
 using namespace std;
 
-
-
-
-
-
-
-
-class Course {
+class Course
+{
 public:
-    Course(Unit*unit, const string& prof_id,int capacity, int id, const string& time,const string& exam_date, int class_number,string prof_name);
+    Course(Unit *unit, const string &prof_id, int capacity, int id, const string &time, const string &exam_date, int class_number, string prof_name);
     string get_prof_id();
     string get_time();
     int get_id();
@@ -30,13 +25,18 @@ public:
     vector<int> get_majors();
     string get_name();
     string get_exam_date();
+    void add_post(string title, string message, string image);
     int get_class_num();
+    void display_posts();
+
 private:
-    Unit*unit;
+    Unit *unit;
     string prof_id;
     int capacity;
     int id;
     string time;
+    int next_post_id = 1;
+    vector<Post *> posts;
     string prof_name;
     string exam_date;
     int class_number;
