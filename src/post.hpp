@@ -2,21 +2,46 @@
 #ifndef POST_HPP
 #define POST_HPP
 
+using namespace std;
 #include <string>
+#include <vector>
 
-class Post {
+class UT_media
+{
 public:
-    Post(int id,  std::string title,  std::string message);
-    Post(int id,  std::string title,  std::string message,std::string image);
+    UT_media(int id, string title,string message);
+    virtual ~UT_media();
     int get_id() const;
-    std::string get_title() const;
-    std::string get_message() const;
-
-private:
+    string get_message() const;
+    string get_title() const;
+protected:
     int id;
-    std::string title;
-    std::string message;
-    std:: string image;
+    string message;
+    string title;
 };
 
-#endif 
+class Post : public UT_media
+{
+public:
+    Post(int id, string title, string message);
+    Post(int id, string title, string message, string image);
+
+private:
+    string image;
+};
+
+class TA_form : public UT_media
+{
+public:
+    TA_form(int id, int course_id,string title, string message);
+    int get_course_id();
+    void add_request(string student_id);
+    vector<string> get_student_ids();
+    void clear_form();
+private:
+    int course_id;
+    vector<string> student_ids;
+};
+
+
+#endif

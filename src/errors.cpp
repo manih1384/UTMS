@@ -5,20 +5,20 @@
 
 
 
-const char* NotFoundError::what() const noexcept{
+const char*NotFoundError::what() const noexcept{
         return "Not Found";
     }
 
 
 
-const char* BadRequestError::what() const noexcept{
+const char*BadRequestError::what() const noexcept{
         return "Bad Request";
     }
 
-const char* PermissionDeniedError::what() const noexcept{
+const char*PermissionDeniedError::what() const noexcept{
         return "Permission Denied";
     }
 
-const char* EmptyError::what() const noexcept{
+const char*EmptyError::what() const noexcept{
         return "Empty";
     }

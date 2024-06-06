@@ -1,25 +1,25 @@
 #include "interface.hpp"
 
-Interface::Interface(const char *majors_path,
-                     const char *students_path,
-                     const char *units_path,
-                     const char *professor_path)
+Interface::Interface(const char*majors_path,
+                     const char*students_path,
+                     const char*units_path,
+                     const char*professor_path)
 {
-    vector<User *> users;
-    vector<Major *> majors = set_majors(majors_path);
-    vector<Unit *> units = set_units(units_path);
-    vector<Professor *> professors = set_professors(professor_path, majors);
-    vector<Student *> students = set_students(students_path, majors);
-    for (Student *student : students)
+    vector<shared_ptr<User> > users;
+    vector<shared_ptr<Major> > majors = set_majors(majors_path);
+    vector<Unit*> units = set_units(units_path);
+    vector<shared_ptr<Professor> > professors = set_professors(professor_path, majors);
+    vector<shared_ptr<Student> > students = set_students(students_path, majors);
+    for (shared_ptr<Student> student : students)
     {
         users.push_back(student);
     }
-    for (Professor *professor : professors)
+    for (shared_ptr<Professor> professor : professors)
     {
         users.push_back(professor);
     }
-    Admin *admin = new Admin("0", "UT_account", "UT_account", 0);
-    for (User *user : users)
+    shared_ptr<Admin>admin = make_shared<Admin>("0", "UT_account", "UT_account", 0);
+    for (shared_ptr<User> user : users)
     {
         admin->add_contact(user);
     }
@@ -27,9 +27,9 @@ Interface::Interface(const char *majors_path,
     system = new System(majors, units, users);
 }
 
-vector<Professor *> Interface::set_professors(const char *path, vector<Major *> all_majors)
+vector<shared_ptr<Professor> > Interface::set_professors(const char*path, vector<shared_ptr<Major> > all_majors)
 {
-    vector<Professor *> professors;
+    vector<shared_ptr<Professor> > professors;
     vector<string> lines = read_csv(path);
     if (lines.empty())
     {
@@ -53,7 +53,7 @@ vector<Professor *> Interface::set_professors(const char *path, vector<Major *> 
         string position = fields[3];
         string password = fields[4];
         string new_major;
-        for (Major *major : all_majors)
+        for (shared_ptr<Major> major : all_majors)
         {
             if (major_id == major->get_id())
             {
@@ -61,15 +61,15 @@ vector<Professor *> Interface::set_professors(const char *path, vector<Major *> 
             }
         }
 
-        Professor *prof = new Professor(pid, name, password, major_id, position, new_major);
+        shared_ptr<Professor> prof = make_shared<Professor>(pid, name, password, major_id, position, new_major);
         professors.push_back(prof);
     }
     return professors;
 }
 
-vector<Student *> Interface::set_students(const char *path, vector<Major *> all_majors)
+vector<shared_ptr<Student> > Interface::set_students(const char*path, vector<shared_ptr<Major> > all_majors)
 {
-    vector<Student *> students;
+    vector<shared_ptr<Student> > students;
     vector<string> lines = read_csv(path);
     if (lines.empty())
     {
@@ -93,22 +93,22 @@ vector<Student *> Interface::set_students(const char *path, vector<Major *> all_
         int semester = stoi(fields[3]);
         string password = fields[4];
         string new_major;
-        for (Major *major : all_majors)
+        for (shared_ptr<Major> major : all_majors)
         {
             if (major_id == major->get_id())
             {
                 new_major = major->get_name();
             }
         }
-        Student *student = new Student(sid, name, password, major_id, semester, new_major);
+        shared_ptr<Student> student = make_shared<Student>(sid, name, password, major_id, semester, new_major);
         students.push_back(student);
     }
     return students;
 }
 
-vector<Unit *> Interface::set_units(const char *path)
+vector<Unit*> Interface::set_units(const char*path)
 {
-    vector<Unit *> all_units;
+    vector<Unit*> all_units;
     vector<string> lines = read_csv(path);
     if (lines.empty())
     {
@@ -138,15 +138,15 @@ vector<Unit *> Interface::set_units(const char *path)
             major_ids.push_back(stoi(mid_str));
         }
 
-        Unit *new_unit = new Unit(cid, name, credit, prerequisite, major_ids);
+        Unit*new_unit = new Unit(cid, name, credit, prerequisite, major_ids);
         all_units.push_back(new_unit);
     }
     return all_units;
 }
 
-vector<Major *> Interface::set_majors(const char *path)
+vector<shared_ptr<Major> > Interface::set_majors(const char*path)
 {
-    vector<Major *> majors;
+    vector<shared_ptr<Major> > majors;
     vector<string> lines = read_csv(path);
     if (lines.empty())
     {
@@ -167,7 +167,7 @@ vector<Major *> Interface::set_majors(const char *path)
         int mid = stoi(fields[0]);
         string major = fields[1];
 
-        Major *new_major = new Major(mid, major);
+        shared_ptr<Major> new_major = make_shared<Major>(mid, major);
         majors.push_back(new_major);
     }
     return majors;
@@ -188,7 +188,7 @@ void Interface::run()
         }
         catch (const exception &e)
         {
-            cerr << e.what() << '\n';
+            cout << e.what() << '\n';
         }
     }
 }

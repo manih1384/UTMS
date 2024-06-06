@@ -2,7 +2,7 @@
 #include "utilityfunctions.hpp"
 using namespace std;
 
-System::System(vector<Major *> all_majors, vector<Unit *> all_units, vector<User *> all_users)
+System::System(vector<shared_ptr<Major> > all_majors, vector<Unit*> all_units, vector<shared_ptr<User> > all_users)
     : all_majors(all_majors), all_units(all_units), all_users(all_users)
 {   
 
@@ -17,15 +17,15 @@ vector<string> System::get_line()
     return line;
 }
 
-vector<Unit *> System::get_all_units()
+vector<Unit*> System::get_all_units()
 {
     return all_units;
 }
 
 void System::set_course(int course_id, const string &professor_id, int capacity, const string &time, const string &exam_date, int class_number)
 {
-    Unit *unit = nullptr;
-    for (Unit *u : all_units)
+    Unit*unit = nullptr;
+    for (Unit*u : all_units)
     {
         if (u->get_id() == course_id)
         {
@@ -38,15 +38,17 @@ void System::set_course(int course_id, const string &professor_id, int capacity,
         throw NotFoundError();
     }
 
-    User *user = find_user(professor_id);
-    if (user == nullptr || dynamic_cast<Professor *>(user) == nullptr)
+    shared_ptr<User> user = find_user(professor_id);
+    if (user == nullptr || dynamic_pointer_cast<Professor>(user) == nullptr)
     {
         throw PermissionDeniedError();
     }
 
-    Professor *professor = dynamic_cast<Professor *>(user);
+    shared_ptr<Professor> professor = dynamic_pointer_cast<Professor>(user);
 
-    if (find(unit->get_majors().begin(), unit->get_majors().end(), professor->get_major()) == unit->get_majors().end())
+
+    vector<int> majors= unit->get_majors();
+    if (find(majors.begin(), majors.end(), professor->get_major()) == majors.end())
     {
         throw PermissionDeniedError();
     }
@@ -55,31 +57,57 @@ void System::set_course(int course_id, const string &professor_id, int capacity,
         throw PermissionDeniedError();
     }
 
-    for (Course *course : all_courses)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    for (shared_ptr<Course>course : all_courses)
     {
         if (course->get_prof_id() == professor_id && has_time_collision(course->get_time(), time))
+        {
+            throw PermissionDeniedError();
+        }
+        else if(course->get_class_num() == class_number && has_time_collision(course->get_time(), time))
         {
             throw PermissionDeniedError();
         }
     }
 
     int new_course_id = all_courses.size() + 1;
-    Course *new_course = new Course(unit, professor_id, capacity, new_course_id, time, exam_date, class_number, professor->get_name());
+    shared_ptr<Course>new_course = make_shared<Course>(unit, professor_id, capacity, new_course_id, time, exam_date, class_number, professor->get_name());
+    professor->add_course(new_course);
     all_courses.push_back(new_course);
-
-    for (User *user : all_users)
+    for (shared_ptr<User> user : all_users)
     {
         user->get_notification(professor->get_id() + " " + professor->get_name() + ": New Course Offering");
     }
 }
 
-vector<Course *> System::get_courses()
+vector<shared_ptr<Course>> System::get_courses()
 {
     return all_courses;
 }
-Course *System::find_course(int course_id)
+shared_ptr<Course>System::find_course(int course_id)
 {
-    for (Course *course : all_courses)
+    for (shared_ptr<Course>course : all_courses)
     {
         if (course->get_id() == course_id)
         {
@@ -92,7 +120,7 @@ Course *System::find_course(int course_id)
 void System::run(vector<string> new_line)
 {
     line=new_line;
-    for (Command *command : commands)
+    for (Command*command : commands)
     {
         if (line[0] == command->get_type())
         {
@@ -102,14 +130,14 @@ void System::run(vector<string> new_line)
 }
 
 
-vector<User *>System::get_all_users(){
+vector<shared_ptr<User> >System::get_all_users(){
     return all_users;
 }
 
 
 
 
-User *System::find_user(string id, string password)
+shared_ptr<User> System::find_user(string id, string password)
 {
     bool flag_id = false;
 
@@ -148,7 +176,7 @@ User *System::find_user(string id, string password)
     throw PermissionDeniedError();
 }
 
-User *System::find_user(string id)
+shared_ptr<User> System::find_user(string id)
 {
     bool flag_id = false;
     for (int i = 0; i < all_users.size(); i++)

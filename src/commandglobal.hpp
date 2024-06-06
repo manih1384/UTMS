@@ -28,3 +28,7 @@ const string PROFESSOR = "professor";
 const string STUDENT = "student";
 const string ADMIN = "admin";
 const string COURSE_CHANNEL = "course_channel";
+const string TA_FORM = "ta_form";
+const string TA_REQUEST= "ta_request";
+const string FORM_ID= "form_id";
+const string CLOSE_TA_FORM="close_ta_form";

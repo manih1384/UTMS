@@ -26,11 +26,11 @@ string User::get_name()
     return name;
 }
 
-vector<User *> User::get_all_contacts()
+vector<shared_ptr<User>> User::get_all_contacts()
 {
     return contacts;
 }
-void User::add_contact(User *new_contact)
+void User::add_contact(shared_ptr<User> new_contact)
 {
     contacts.push_back(new_contact);
 }
@@ -54,40 +54,43 @@ bool User::view_notification()
     {
         return false;
     }
-    for (int i=notifications.size()-1;i>=0;i--){
-        cout<< notifications[i]<<endl;
+    for (int i = notifications.size() - 1; i >= 0; i--)
+    {
+        cout << notifications[i] << endl;
     }
     notifications.clear();
     return true;
 }
-void User::add_post(string title, string message,string image)
+void User::add_post(string title, string message, string image)
 {
-    posts.push_back(new Post(next_post_id, title, message,image));
+    posts.push_back(make_shared<Post>(next_post_id, title, message, image));
     next_post_id++;
     send_notification(id + " " + name + ": " + "New Post");
 }
 
-bool User::has_course(Course* target_course){
+bool User::has_course(shared_ptr<Course> target_course)
+{
     bool flag = false;
-    for(Course* course: courses){
-        if( course->get_id()==target_course->get_id()){
-            flag=true;
+    for (shared_ptr<Course> course : courses)
+    {
+        if (course->get_id() == target_course->get_id())
+        {
+            flag = true;
         }
     }
     return flag;
 }
-void User::set_photo(string new_photo){
-    photo=new_photo;
+void User::set_photo(string new_photo)
+{
+    photo = new_photo;
 }
-
 
 bool User::delete_post(int id)
 {
-    for (Post *post : posts)
+    for (shared_ptr<UT_media> post : posts)
     {
         if (post->get_id() == id)
         {
-            delete post;
             posts.erase(find(posts.begin(), posts.end(), post));
             return true;
         }
@@ -95,9 +98,9 @@ bool User::delete_post(int id)
     return false;
 }
 
-Post *User::get_post_by_id(int post_id)
+shared_ptr<UT_media> User::get_post_by_id(int post_id)
 {
-    for (Post *post : posts)
+    for (shared_ptr<UT_media> post : posts)
     {
         if (post->get_id() == post_id)
         {
@@ -112,7 +115,7 @@ int User::get_major()
     return major_id;
 }
 
-vector<Course *> User::get_courses()
+vector<shared_ptr<Course>> User::get_courses()
 {
     return courses;
 }
@@ -124,7 +127,7 @@ int Student::get_semester()
 
 void Professor::display_profile()
 {
-    cout << name << " " << major << " " << position;
+    cout << name << " " << major << " " << position<<" ";
     if (!courses.empty())
     {
         cout << courses[0]->get_name();
@@ -136,12 +139,9 @@ void Professor::display_profile()
     cout << endl;
 }
 
-
-
-
-Course* Student::find_course(int course_id)
+shared_ptr<Course> Student::find_course(int course_id)
 {
-    for (Course* course : courses)
+    for (shared_ptr<Course> course : courses)
     {
         if (course->get_id() == course_id)
         {
@@ -151,20 +151,21 @@ Course* Student::find_course(int course_id)
     return nullptr;
 }
 
-void Student::remove_course(Course* course)
+void Student::remove_course(shared_ptr<Course> course)
 {
     courses.erase(remove(courses.begin(), courses.end(), course), courses.end());
 }
 
-
-
-string Student::type(){
+string Student::type()
+{
     return "student";
 }
-string Admin::type(){
+string Admin::type()
+{
     return "admin";
 }
-string Professor::type(){
+string Professor::type()
+{
     return "professor";
 }
 
@@ -183,6 +184,27 @@ void Student::display_profile()
     cout << endl;
 }
 
+bool Student::is_ta(shared_ptr<Course> target_course)
+{
+    bool flag = false;
+    for (shared_ptr<Course> course : ta_courses)
+    {
+        if (course->get_id() == target_course->get_id())
+        {
+            flag = true;
+        }
+    }
+    return flag;
+}
+
+void Student::become_ta(shared_ptr<Course> course)
+{
+    if (!is_ta(course))
+    {
+        ta_courses.push_back(course);
+    }
+}
+
 void Admin::display_profile()
 {
     cout << name;
@@ -191,17 +213,28 @@ void Admin::display_profile()
 
 void User::display_posts()
 {
-    for (int i=posts.size()-1;i>=0;i--)
+    for (int i = posts.size() - 1; i >= 0; i--)
     {
         cout << posts[i]->get_id() << " " << posts[i]->get_title() << endl;
     }
 }
 
-void User::add_course(Course *course)
+void User::add_course(shared_ptr<Course> course)
 {
     courses.push_back(course);
 }
 
 void User::remove_course()
 {
+}
+
+Admin::~Admin()
+{
+}
+
+void Professor::add_ta_form(int course_id, string title, string message)
+{
+    posts.push_back(make_shared<TA_form>(next_post_id, course_id, title, message));
+    next_post_id++;
+    send_notification(id + " " + name + ": " + "New Form");
 }
