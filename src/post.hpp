@@ -25,6 +25,7 @@ class Post : public UT_media
 public:
     Post(int id, string title, string message);
     Post(int id, string title, string message, string image);
+    string get_image();
 
 private:
     string image;

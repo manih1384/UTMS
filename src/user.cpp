@@ -26,6 +26,32 @@ string User::get_name()
     return name;
 }
 
+string User::get_photo(){
+    return photo;
+}
+
+
+string Student::get_major_name(){
+    return major;
+}
+string Professor::get_major_name(){
+    return major;
+}
+string Admin::get_major_name(){
+    return "0";
+}
+
+vector<shared_ptr<UT_media>> User::get_posts(){
+    return posts;
+}
+
+
+string Professor::get_position(){
+    return position;
+}
+
+
+
 vector<shared_ptr<User>> User::get_all_contacts()
 {
     return contacts;

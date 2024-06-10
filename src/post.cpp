@@ -19,6 +19,12 @@ string UT_media::get_title() const
     return title;
 }
 
+
+string Post::get_image(){
+    return image;
+}
+
+
 string UT_media::get_message() const
 {
     return message;

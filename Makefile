@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -Wall -g -std=c++20
 
 # Directories
-SRC_DIR = src
+SRC_DIRS = src server utils
 OBJ_DIR = obj
 BIN_DIR = bin
 
@@ -13,10 +13,10 @@ BIN_DIR = bin
 TARGET = utms.out
 
 # Source files
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+SRCS = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 
 # Object files
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
 # Default target
 all: $(TARGET)
@@ -27,13 +27,13 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # Compile
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 # Clean
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)/$(TARGET)
 
 # Phony targets
 .PHONY: all clean

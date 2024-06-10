@@ -14,3 +14,5 @@ const string DELETE = "DELETE";
 const string POST = "POST";
 const string LOGIN = "login";
 const string LOGOUT = "logout";
+const string SLASH = "/";
+const string PNG = ".png";

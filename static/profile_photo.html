@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Profile</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Set Profile</h1>
+  </header>
+  <main>
+    <div class="profile-container">
+      <form action="/set_profile" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="image">Image:</label>
+          <input type="file" id="image" name="image" accept=".png" required>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="post-button">Submit</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+
+</html>
