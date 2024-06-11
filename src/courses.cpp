@@ -2,8 +2,8 @@
 
 const string SPACE = " ";
 
-Course::Course(Unit *unit, const string &prof_id, int capacity, int id, const string &time, const string &exam_date, int class_number, string prof_name)
-    : unit(unit), prof_id(prof_id), capacity(capacity), id(id), time(time), exam_date(exam_date), class_number(class_number), prof_name(prof_name) {}
+Course::Course(shared_ptr<Unit>unit, const string &prof_id,int capacity, int id, const string &time, const string &exam_date, int class_number, string prof_name)
+    : unit(unit), prof_id(prof_id),capacity(capacity), id(id), time(time), exam_date(exam_date), class_number(class_number), prof_name(prof_name) {}
 
 string Course::get_prof_id()
 {
@@ -19,6 +19,18 @@ int Course::get_id()
 {
     return id;
 }
+
+
+   string Course::get_professor(){
+    return prof_name;
+   }
+
+
+ int Course::get_capacity(){
+    return capacity;
+ }
+
+
 
 void Course::display_completely()
 {
@@ -52,32 +64,6 @@ int Course::get_class_num()
 string Course::get_exam_date()
 {
     return exam_date;
-}
-
-void Course::add_post(string title, string message, string image)
-{
-    posts.push_back(new Post(next_post_id, title, message, image));
-    next_post_id++;
-}
-
-void Course::display_posts()
-{
-    for (int i = posts.size() - 1; i >= 0; i--)
-    {
-        cout << posts[i]->get_id() << " " << posts[i]->get_title() << endl;
-    }
-}
-
-Post *Course::get_post_by_id(int post_id)
-{
-    for (Post *post : posts)
-    {
-        if (post->get_id() == post_id)
-        {
-            return post;
-        }
-    }
-    return nullptr;
 }
 
 void Course::add_ta_id(string ta_id) { ta_ids.push_back(ta_id);}

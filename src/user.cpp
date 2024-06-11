@@ -141,7 +141,7 @@ int User::get_major()
     return major_id;
 }
 
-vector<shared_ptr<Course>> User::get_courses()
+vector<shared_ptr<Course>>   User::get_courses()
 {
     return courses;
 }

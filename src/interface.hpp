@@ -19,7 +19,7 @@ public:
 private:
     vector<shared_ptr<Professor> > set_professors(const char*path, vector<shared_ptr<Major> > all_majors);
     vector<shared_ptr<Student> > set_students(const char*path, vector<shared_ptr<Major> > all_majors);
-    vector<Unit*> set_units(const char*path);
+    vector<shared_ptr<Unit>> set_units(const char*path);
     vector<string> get_input(string new_line);
     vector<shared_ptr<Major> > set_majors(const char*path);
     vector<string> post_commands = {COURSE_OFFER, LOGIN, LOGOUT, "post", CONNECT,PROFILE_PHOTO,COURSE_POST,TA_FORM,TA_REQUEST,CLOSE_TA_FORM};

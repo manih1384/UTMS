@@ -381,7 +381,7 @@ void PostCommand::course_post(vector<string> line)
         throw PermissionDeniedError();
     }
 
-    course->add_post(system.current_user->get_name() + SPACE + QUOTATION + title + QUOTATION, QUOTATION + message + QUOTATION, image);
+   //s course->add_post(system.current_user->get_name() + SPACE + QUOTATION + title + QUOTATION, QUOTATION + message + QUOTATION, image);
     for (shared_ptr<User> user : system.get_all_users())
     {
         if ((course->is_student(user->get_id()) ||
@@ -451,7 +451,7 @@ void PostCommand::course_offer(vector<string> line)
     int course_id = stoi(course_id_str);
     int capacity = stoi(capacity_str);
     int class_number = stoi(class_number_str);
-    system.set_course(course_id, professor_id, capacity, time, exam_date, class_number);
+    //system.set_course(course_id, professor_id, capacity, time, exam_date, class_number);
     cout << OK << endl;
 }
 
@@ -617,7 +617,6 @@ void GetCommand::course_channel(vector<string> line)
         throw PermissionDeniedError();
     }
     course->display_completely();
-    course->display_posts();
 }
 
 void GetCommand::course_post(vector<string> line)
@@ -660,7 +659,7 @@ void GetCommand::course_post(vector<string> line)
         throw NotFoundError();
     }
 
-    Post *post = course->get_post_by_id(post_id);
+    Post *post;
     if (!post)
     {
         throw NotFoundError();
@@ -678,7 +677,7 @@ void GetCommand::course_post(vector<string> line)
 
 void GetCommand::get_courses(vector<string> line)
 {
-    vector<shared_ptr<Course>> courses = system.get_courses();
+    vector<shared_ptr<Course>>   courses = system.get_courses();
     if (line.size() == 5)
     {
         string id_str = line[4];
@@ -894,7 +893,7 @@ void GetCommand::view_courses(vector<string> line)
     {
         throw EmptyError();
     }
-    vector<shared_ptr<Course>> courses = student->get_courses();
+    vector<shared_ptr<Course>>   courses = student->get_courses();
 
     for (shared_ptr<Course> course : courses)
     {

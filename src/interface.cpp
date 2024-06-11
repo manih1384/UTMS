@@ -2,14 +2,14 @@
 #include "../server/server.hpp"
 #include "handler.hpp"
 
-Interface::Interface(const char *majors_path,
-                     const char *students_path,
-                     const char *units_path,
-                     const char *professor_path)
+Interface::Interface(const char*majors_path,
+                     const char*students_path,
+                     const char*units_path,
+                     const char*professor_path)
 {
     vector<shared_ptr<User>> users;
     vector<shared_ptr<Major>> majors = set_majors(majors_path);
-    vector<Unit *> units = set_units(units_path);
+    vector<shared_ptr<Unit>> units = set_units(units_path);
     vector<shared_ptr<Professor>> professors = set_professors(professor_path, majors);
     vector<shared_ptr<Student>> students = set_students(students_path, majors);
     for (shared_ptr<Student> student : students)
@@ -29,7 +29,7 @@ Interface::Interface(const char *majors_path,
     system = new System(majors, units, users);
 }
 
-vector<shared_ptr<Professor>> Interface::set_professors(const char *path, vector<shared_ptr<Major>> all_majors)
+vector<shared_ptr<Professor>> Interface::set_professors(const char*path, vector<shared_ptr<Major>> all_majors)
 {
     vector<shared_ptr<Professor>> professors;
     vector<string> lines = read_csv(path);
@@ -69,7 +69,7 @@ vector<shared_ptr<Professor>> Interface::set_professors(const char *path, vector
     return professors;
 }
 
-vector<shared_ptr<Student>> Interface::set_students(const char *path, vector<shared_ptr<Major>> all_majors)
+vector<shared_ptr<Student>> Interface::set_students(const char*path, vector<shared_ptr<Major>> all_majors)
 {
     vector<shared_ptr<Student>> students;
     vector<string> lines = read_csv(path);
@@ -108,9 +108,9 @@ vector<shared_ptr<Student>> Interface::set_students(const char *path, vector<sha
     return students;
 }
 
-vector<Unit *> Interface::set_units(const char *path)
+vector<shared_ptr<Unit>> Interface::set_units(const char*path)
 {
-    vector<Unit *> all_units;
+    vector<shared_ptr<Unit>> all_units;
     vector<string> lines = read_csv(path);
     if (lines.empty())
     {
@@ -140,13 +140,13 @@ vector<Unit *> Interface::set_units(const char *path)
             major_ids.push_back(stoi(mid_str));
         }
 
-        Unit *new_unit = new Unit(cid, name, credit, prerequisite, major_ids);
+        shared_ptr<Unit>new_unit = make_shared< Unit>(cid, name, credit, prerequisite, major_ids);
         all_units.push_back(new_unit);
     }
     return all_units;
 }
 
-vector<shared_ptr<Major>> Interface::set_majors(const char *path)
+vector<shared_ptr<Major>> Interface::set_majors(const char*path)
 {
     vector<shared_ptr<Major>> majors;
     vector<string> lines = read_csv(path);
@@ -198,14 +198,34 @@ void Interface::run()
     server.post("/set_profile", new ProfileHandler(system, server));
 
 
+    server.get("/take_course", new ShowPage("static/take_course.html"));
+    server.post("/take_course", new TakeCourseHandler(system));
+
+
+    server.get("/delete_course", new ShowPage("static/delete_course.html"));
+    server.post("/delete_course", new DeleteCourseHandler(system));
+
+    server.get("/my_courses", new ShowMyCoursesHandler(system));
+
+
+    server.get("/add_course", new ShowPage("static/add_course.html"));
+    server.post("/add_course", new AddCourseHandler(system));
 
     server.get("/find_user", new ShowPage("static/find_user.html"));
     server.post("/find_user", new FindUserHandler(system,server));
 
-    server.get("/not_found", new ShowPage("static/not_found.html"));
-    server.get("/bad_req", new ShowPage("static/bad_req.html"));
-    server.get("/Permission_error", new ShowPage("static/Permission_error.html"));
-    server.get("/notfound_error", new ShowPage("static/notfound_error.html"));
+
+    server.get("/all_courses", new ShowAllCoursesHandler(system));
+
+
+
+
+
+
+    server.get(BAD_REQ_PAGE, new ShowPage("static/bad_req.html"));
+    server.get(PERM_DENIED_PAGE, new ShowPage("static/Permission_error.html"));
+    server.get(NOT_FOUND_PAGE, new ShowPage("static/notfound_error.html"));
+    server.setNotFoundErrPage("static/notfound_error.html");
 
     server.run();
 

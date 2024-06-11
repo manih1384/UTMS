@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Course Offering</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Add Course Offering</h1>
+  </header>
+  <main>
+    <section class="course-form-container">
+      <h2>Course Details</h2>
+      <form action="/add_course" method="post">
+        <label for="course_id">Course ID:</label>
+        <input type="text" id="course_id" name="course_id" required>
+
+        <label for="professor_id">Professor ID:</label>
+        <input type="text" id="professor_id" name="professor_id" required>
+
+        <label for="capacity">Capacity:</label>
+        <input type="text" id="capacity" name="capacity" required>
+
+        <label for="class_time">Class Time:</label>
+        <input type="text" id="time" name="time" required>
+
+        <label for="exam_date">Exam Date:</label>
+        <input type="text" id="exam_date" name="exam_date" required>
+
+        <label for="class_number">Class Number:</label>
+        <input type="text" id="class_number" name="class_number" required>
+
+        <button type="submit">Add Course</button>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2024 UTMS</p>
+  </footer>
+</body>
+
+</html>

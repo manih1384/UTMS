@@ -2,7 +2,7 @@
 #include "utilityfunctions.hpp"
 using namespace std;
 
-System::System(vector<shared_ptr<Major>> all_majors, vector<Unit *> all_units, vector<shared_ptr<User>> all_users)
+System::System(vector<shared_ptr<Major>> all_majors, vector<shared_ptr<Unit>> all_units, vector<shared_ptr<User>> all_users)
     : all_majors(all_majors), all_units(all_units), all_users(all_users)
 {
 
@@ -17,15 +17,40 @@ vector<string> System::get_line()
     return line;
 }
 
-vector<Unit *> System::get_all_units()
+vector<shared_ptr<Unit>> System::get_all_units()
 {
     return all_units;
 }
 
-void System::set_course(int course_id, const string &professor_id, int capacity, const string &time, const string &exam_date, int class_number)
+void System::set_course(const string &course_id_str, const string &professor_id, const string &capacity_str, const string &time, const string &exam_date, const string &class_number_str)
 {
-    Unit *unit = nullptr;
-    for (Unit *u : all_units)
+    if (current_user->get_id() != "0")
+    {
+        throw PermissionDeniedError();
+    }
+
+    int course_id;
+    int capacity;
+    int class_number;
+    try
+    {
+        course_id = stoi(course_id_str);
+        capacity = stoi(capacity_str);
+        class_number = stoi(class_number_str);
+    }
+    catch (exception &e)
+    {
+        throw BadRequestError();
+    }
+    if (course_id <= 0 || class_number <= 0 || capacity <= 0)
+    {
+        throw BadRequestError();
+    }
+
+    cout << "aa";
+
+    shared_ptr<Unit>unit = nullptr;
+    for (shared_ptr<Unit>u : all_units)
     {
         if (u->get_id() == course_id)
         {
@@ -37,6 +62,8 @@ void System::set_course(int course_id, const string &professor_id, int capacity,
     {
         throw NotFoundError();
     }
+
+    cout << "bb";
 
     shared_ptr<User> user = find_user(professor_id);
     if (user == nullptr || dynamic_pointer_cast<Professor>(user) == nullptr)
@@ -56,47 +83,45 @@ void System::set_course(int course_id, const string &professor_id, int capacity,
         throw PermissionDeniedError();
     }
 
+    cout << "aa";
+
+    // for (int i=0;i<all_courses.size();all_courses)
+    // {
 
 
-    for (shared_ptr<Course> course : all_courses)
-    {
-        if (course->get_prof_id() == professor_id && has_time_collision(course->get_time(), time))
-        {
-            throw PermissionDeniedError();
-        }
-        else if (course->get_class_num() == class_number && has_time_collision(course->get_time(), time))
-        {
-            throw PermissionDeniedError();
-        }
-    }
+    //     if (all_courses[i]->get_prof_id() == professor_id && has_time_collision(all_courses[i]->get_time(), time))
+    //     {
+    //         throw PermissionDeniedError();
+    //     }
+    //     else if (all_courses[i]->get_class_num() == class_number && has_time_collision(all_courses[i]->get_time(), time))
+    //     {
+    //         throw PermissionDeniedError();
+    //     }
+    // }
+
+    cout << "wwa";
 
     int new_course_id = all_courses.size() + 1;
+
     shared_ptr<Course> new_course = make_shared<Course>(unit, professor_id, capacity, new_course_id, time, exam_date, class_number, professor->get_name());
-    professor->add_course(new_course);
+
+    cout << "qqa";
+
     all_courses.push_back(new_course);
-    for (shared_ptr<User> user : all_users)
-    {
-        user->get_notification(professor->get_id() + " " + professor->get_name() + ": New Course Offering");
-    }
 }
 
+string System::login(string id, string password)
+{
+    current_user = find_user(id, password);
+    return current_user->type();
+}
 
+shared_ptr<User> System::get_user()
+{
+    return current_user;
+}
 
-    string System::login(string id, string password)
-    {
-        current_user = find_user(id, password);
-        return current_user->type();
-    }
-
-
-
-    shared_ptr<User> System::get_user(){
-        return current_user;
-    }
-
-
-
-vector<shared_ptr<Course>> System::get_courses()
+vector<shared_ptr<Course>>   System::get_courses()
 {
     return all_courses;
 }
@@ -115,7 +140,7 @@ shared_ptr<Course> System::find_course(int course_id)
 void System::run(vector<string> new_line)
 {
     line = new_line;
-    for (Command *command : commands)
+    for (Command*command : commands)
     {
         if (line[0] == command->get_type())
         {
@@ -204,22 +229,96 @@ string System::stick_string(vector<string> line, string delim)
     return str;
 }
 
-
-
-void System::post(string title,string message,string image)
+void System::post(string title, string message, string image)
 {
-    
-    
 
-    current_user->add_post(title,message, image);
+    current_user->add_post(title, message, image);
+}
 
-    
+void System::logout()
+{
+    current_user = nullptr;
 }
 
 
 
 
 
-void System::logout(){
-    current_user=nullptr;
+
+
+
+void System::take_course(string course_id_str)
+{
+
+    
+    if (!is_natural_number(course_id_str))
+    {
+        throw BadRequestError();
+    }
+
+    int course_id = stoi(course_id_str);
+    shared_ptr<Course> course = find_course(course_id);
+    if (course == nullptr)
+    {
+        throw NotFoundError();
+    }
+
+    shared_ptr<Student> student = dynamic_pointer_cast<Student>(current_user);
+    if (student == nullptr)
+    {
+        throw PermissionDeniedError();
+    }
+
+    if (student->get_semester() < course->get_min_semester())
+    {
+        throw PermissionDeniedError();
+    }
+
+    vector<int> course_majors = course->get_majors();
+    if (find(course_majors.begin(), course_majors.end(), student->get_major()) == course_majors.end())
+    {
+        throw PermissionDeniedError();
+    }
+
+    for (shared_ptr<Course> enrolled_course : student->get_courses())
+    {
+        if (has_time_collision(course->get_time(), enrolled_course->get_time()) || course->get_exam_date() == enrolled_course->get_exam_date())
+        {
+            throw PermissionDeniedError();
+        }
+    }
+
+    student->add_course(course);
+    course->add_student_id(student->get_id());
+}
+
+
+
+
+
+
+void System::delete_course(string course_id_str)
+{
+
+    if (!is_natural_number(course_id_str))
+    {
+        throw BadRequestError();
+    }
+
+    int course_id = stoi(course_id_str);
+
+    shared_ptr<Student> student = dynamic_pointer_cast<Student>(current_user);
+    if (student == nullptr)
+    {
+        throw PermissionDeniedError();
+    }
+
+    shared_ptr<Course> course = student->find_course(course_id);
+    if (course == nullptr)
+    {
+        throw NotFoundError();
+    }
+
+    student->remove_course(course);
+    course->remove_student_id(student->get_id());
 }

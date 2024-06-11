@@ -36,7 +36,7 @@ public:
     void send_notification(string notification);
     void get_notification(string notification);
     bool view_notification();
-    vector<shared_ptr<Course>> get_courses();
+    vector<shared_ptr<Course>>   get_courses();
     bool has_course(shared_ptr<Course> course);
     void add_course(shared_ptr<Course> course);
     void remove_course();
@@ -52,7 +52,7 @@ protected:
     vector<shared_ptr<User>> contacts;
     vector<shared_ptr<UT_media>> posts;
     int next_post_id = 1;
-    vector<shared_ptr<Course>> courses;
+    vector<shared_ptr<Course>>   courses;
     vector<string> notifications;
 };
 
