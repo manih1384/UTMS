@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post</title>
+  <title>Send Post</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -14,12 +14,12 @@
   </header>
   <main>
     <div class="post-container">
-      <form action="/send_post" method="post" enctype="multipart/form-data">
+      <form id="postForm" action="/send_post" method="post" enctype="multipart/form-data">
         <div class="form-group">
           <label for="title">Title:</label>
           <input type="text" id="title" name="title" required>
         </div>
-        
+
         <div class="form-group">
           <label for="message">Message:</label>
           <textarea id="message" name="message" rows="5" required></textarea>
@@ -28,6 +28,7 @@
         <div class="form-group">
           <label for="image">Image (optional):</label>
           <input type="file" id="image" name="image" accept=".png">
+          <img id="imagePreview" class="image-preview" alt="Image Preview">
         </div>
 
         <div class="form-group">
@@ -36,6 +37,33 @@
       </form>
     </div>
   </main>
+  <footer>
+    <p>&copy; 2024 UTMS</p>
+  </footer>
+  <script>
+    document.getElementById('postForm').addEventListener('submit', function (event) {
+      const title = document.getElementById('title').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (!title || !message) {
+        alert('Please fill out all fields.');
+        event.preventDefault();
+      }
+    });
+
+    document.getElementById('image').addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const preview = document.getElementById('imagePreview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
 </body>
 
 </html>

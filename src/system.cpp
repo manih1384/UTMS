@@ -6,15 +6,6 @@ System::System(vector<shared_ptr<Major>> all_majors, vector<shared_ptr<Unit>> al
     : all_majors(all_majors), all_units(all_units), all_users(all_users)
 {
 
-    commands.push_back(new GetCommand(*this));
-    commands.push_back(new PostCommand(*this));
-    commands.push_back(new PutCommand(*this));
-    commands.push_back(new DeleteCommand(*this));
-}
-
-vector<string> System::get_line()
-{
-    return line;
 }
 
 vector<shared_ptr<Unit>> System::get_all_units()
@@ -47,7 +38,6 @@ void System::set_course(const string &course_id_str, const string &professor_id,
         throw BadRequestError();
     }
 
-    cout << "aa";
 
     shared_ptr<Unit>unit = nullptr;
     for (shared_ptr<Unit>u : all_units)
@@ -63,7 +53,6 @@ void System::set_course(const string &course_id_str, const string &professor_id,
         throw NotFoundError();
     }
 
-    cout << "bb";
 
     shared_ptr<User> user = find_user(professor_id);
     if (user == nullptr || dynamic_pointer_cast<Professor>(user) == nullptr)
@@ -82,30 +71,32 @@ void System::set_course(const string &course_id_str, const string &professor_id,
     {
         throw PermissionDeniedError();
     }
+    int t=0;
+    while (t<100)
+    {
+        cout<<time<<professor_id;
+        t++;
+    }
+    
+    for (int i=0;i<all_courses.size();i++)
+    {
 
-    cout << "aa";
 
-    // for (int i=0;i<all_courses.size();all_courses)
-    // {
+        if (all_courses[i]->get_prof_id() == professor_id && has_time_collision(all_courses[i]->get_time(), time))
+        {
+            throw PermissionDeniedError();
+        }
+        else if (all_courses[i]->get_class_num() == class_number && has_time_collision(all_courses[i]->get_time(), time))
+        {
+            throw PermissionDeniedError();
+        }
+    }
 
-
-    //     if (all_courses[i]->get_prof_id() == professor_id && has_time_collision(all_courses[i]->get_time(), time))
-    //     {
-    //         throw PermissionDeniedError();
-    //     }
-    //     else if (all_courses[i]->get_class_num() == class_number && has_time_collision(all_courses[i]->get_time(), time))
-    //     {
-    //         throw PermissionDeniedError();
-    //     }
-    // }
-
-    cout << "wwa";
-
+    
     int new_course_id = all_courses.size() + 1;
 
     shared_ptr<Course> new_course = make_shared<Course>(unit, professor_id, capacity, new_course_id, time, exam_date, class_number, professor->get_name());
 
-    cout << "qqa";
 
     all_courses.push_back(new_course);
 }
@@ -137,17 +128,6 @@ shared_ptr<Course> System::find_course(int course_id)
     return nullptr;
 }
 
-void System::run(vector<string> new_line)
-{
-    line = new_line;
-    for (Command*command : commands)
-    {
-        if (line[0] == command->get_type())
-        {
-            command->execute(line[1]);
-        }
-    }
-}
 
 vector<shared_ptr<User>> System::get_all_users()
 {

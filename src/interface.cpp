@@ -180,16 +180,17 @@ void Interface::run()
     Server server(8080);
     server.get("/", new ShowPage("static/home.html"));
     server.get("/home.png", new ShowImage("static/utms.png"));
+    server.get("/default_pfp.png", new ShowImage("static/download.png"));
     server.get("/style.css", new ShowPage("static/style.css"));
 
-    // server.get("/profilepic.png", new ShowImage("static/utms.png"));
+
     server.get("/login", new ShowPage("static/logincss.html"));
     server.post("/login", new LoginHandler(system));
 
     server.get("/logout", new ShowPage("static/logout.html"));
     server.post("/logout", new LogoutHandler(system));
 
-    server.get("/homepage", new HomePageHandler(system));
+    server.get(HOME_PAGE, new HomePageHandler(system));
 
     server.get("/send_post", new ShowPage("static/post.html"));
     server.post("/send_post", new PostHandler(system,server));
@@ -228,107 +229,4 @@ void Interface::run()
     server.setNotFoundErrPage("static/notfound_error.html");
 
     server.run();
-
-    string new_line;
-    while (getline(cin, new_line))
-    {
-        try
-        {
-
-            vector<string> line = get_input(new_line);
-
-            system->run(line);
-        }
-        catch (const exception &e)
-        {
-            cout << e.what() << '\n';
-        }
-    }
-}
-
-vector<string> Interface::get_input(string new_line)
-{
-    vector<string> current_line = cut_string(new_line, SPACE);
-    if (current_line.empty() || (current_line[0] != POST && current_line[0] != DELETE && current_line[0] != PUT && current_line[0] != GET))
-    {
-        throw BadRequestError();
-    }
-    if (current_line[0] == POST)
-    {
-        if (current_line.size() > 1 && validate_post(current_line[1]))
-        {
-            return current_line;
-        }
-    }
-    else if (current_line[0] == DELETE)
-    {
-        if (current_line.size() > 1 && validate_delete(current_line[1]))
-        {
-            return current_line;
-        }
-    }
-    else if (current_line[0] == PUT)
-    {
-        if (current_line.size() > 1 && validate_put(current_line[1]))
-        {
-            return current_line;
-        }
-    }
-    else if (current_line[0] == GET)
-    {
-        if (current_line.size() > 1 && validate_get(current_line[1]))
-        {
-            return current_line;
-        }
-    }
-
-    throw NotFoundError();
-}
-
-bool Interface::validate_post(const string &command)
-{
-    for (const auto &cmd : post_commands)
-    {
-        if (cmd == command)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Interface::validate_delete(const string &command)
-{
-    for (const auto &cmd : delete_commands)
-    {
-        if (cmd == command)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Interface::validate_put(const string &command)
-{
-    for (const auto &cmd : put_commands)
-    {
-        if (cmd == command)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Interface::validate_get(const string &command)
-{
-    for (const auto &cmd : get_commands)
-    {
-        if (cmd == command)
-        {
-            return true;
-        }
-    }
-    return false;
 }

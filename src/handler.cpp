@@ -15,7 +15,7 @@ Response *LoginHandler::callback(Request *req)
     {
 
         string type = system->login(username, password);
-        Response *res = Response::redirect("/homepage");
+        Response *res = Response::redirect(HOME_PAGE);
         res->setSessionId(type);
         return res;
     }
@@ -36,9 +36,9 @@ AddCourseHandler::AddCourseHandler(System *system)
 
 Response *AddCourseHandler::callback(Request *req)
 {
-    if (req->getSessionId() != "admin")
+    if (system->get_user()==nullptr)
     {
-        Response *res = Response::redirect("/Permission_error");
+        Response *res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
 
@@ -52,7 +52,7 @@ Response *AddCourseHandler::callback(Request *req)
     {
 
         system->set_course(course_id, professor_id, capacity, time, exam_date, class_number);
-        Response *res = Response::redirect("/homepage");
+        Response *res = Response::redirect(HOME_PAGE);
         return res;
     }
     catch (NotFoundError &e)
@@ -89,9 +89,10 @@ HomePageHandler::HomePageHandler(System *system)
 Response *HomePageHandler::callback(Request *req)
 {
     Response *res = new Response();
-    if (req->getSessionId() != "student" && req->getSessionId() != "admin" && req->getSessionId() != "professor")
+    if (system->get_user()==nullptr)
     {
-        res = Response::redirect("/Permission_error");
+        
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
     res->setHeader("Content-Type", "text/html");
@@ -159,9 +160,9 @@ Response *PostHandler::callback(Request *req)
 {
 
     Response *res = new Response();
-    if (req->getSessionId() != "student" && req->getSessionId() != "admin" && req->getSessionId() != "professor")
+    if (system->get_user()==nullptr)
     {
-        res = Response::redirect("/Permission_error");
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
     shared_ptr<User> user = system->get_user();
@@ -175,7 +176,7 @@ Response *PostHandler::callback(Request *req)
     system->post(title, message, SLASH + image_name + PNG);
 
     server.get(SLASH + image_name + PNG, new ShowImage("images/" + image_name));
-    res = Response::redirect("/homepage");
+    res = Response::redirect(HOME_PAGE);
     return res;
 }
 
@@ -184,10 +185,10 @@ ProfileHandler::ProfileHandler(System *system, Server &server)
 
 Response *ProfileHandler::callback(Request *req)
 {
-    Response *res = Response::redirect("/homepage");
-    if (req->getSessionId() != "student" && req->getSessionId() != "admin" && req->getSessionId() != "professor")
+    Response *res = Response::redirect(HOME_PAGE);
+    if (system->get_user()==nullptr)
     {
-        res = Response::redirect("/Permission_error");
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
     shared_ptr<User> user = system->get_user();
@@ -230,9 +231,9 @@ Response *PersonalPageHandler::callback(Request *req)
 {
 
     Response *res = new Response();
-    if (req->getSessionId() != "student" && req->getSessionId() != "admin" && req->getSessionId() != "professor")
+    if (system->get_user()==nullptr)
     {
-        res = Response::redirect("/Permission_error");
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
     std::string userName = user->get_name();
@@ -300,9 +301,9 @@ ShowAllCoursesHandler::ShowAllCoursesHandler(System *system)
 Response *ShowAllCoursesHandler::callback(Request *req)
 {
     Response *res = new Response();
-    if (req->getSessionId() != "student" && req->getSessionId() != "admin" && req->getSessionId() != "professor")
+    if (system->get_user()==nullptr)
     {
-        res = Response::redirect("/Permission_error");
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
     res->setHeader("Content-Type", "text/html");
@@ -359,7 +360,7 @@ Response *TakeCourseHandler::callback(Request *req)
     Response *res = new Response();
     if (req->getSessionId() != "student")
     {
-        res = Response::redirect("/Permission_error");
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
 
@@ -368,7 +369,7 @@ Response *TakeCourseHandler::callback(Request *req)
     {
 
         system->take_course(course_id);
-        res = Response::redirect("/homepage");
+        res = Response::redirect(HOME_PAGE);
         return res;
     }
     catch (NotFoundError &e)
@@ -409,7 +410,7 @@ Response *DeleteCourseHandler::callback(Request *req)
     {
 
        system->delete_course(course_id);
-        res = Response::redirect("/homepage");
+        res = Response::redirect(HOME_PAGE);
         return res;
     }
     catch (NotFoundError &e)
@@ -440,12 +441,12 @@ Response *ShowMyCoursesHandler::callback(Request *req)
     Response *res = new Response();
     if (req->getSessionId() != "student")
     {
-        res = Response::redirect("/Permission_error");
+        res = Response::redirect(PERM_DENIED_PAGE);
         return res;
     }
     res->setHeader("Content-Type", "text/html");
     std::string body;
-    std::vector<std::shared_ptr<Course>> courses = system->current_user->get_courses();
+    std::vector<std::shared_ptr<Course>> courses = system->get_user()->get_courses();
     body += "<!DOCTYPE html>";
     body += "<html lang=\"en\">";
     body += "<head>";

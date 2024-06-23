@@ -7,34 +7,61 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f3f3f3;
-            color: #333;
+            background-color: #000;
+            color: #FFF;
             margin: 0;
-            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             text-align: center;
-            padding-top: 50px;
+            padding: 0 20px;
         }
         .container {
+            background-color: #1a1a1a;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             max-width: 600px;
-            margin: 0 auto;
+            width: 100%;
         }
         h1 {
             font-size: 36px;
+            color: rgb(131, 92, 52);
+            margin-bottom: 20px;
         }
         p {
             font-size: 18px;
+            color: #DDD;
+            margin-bottom: 20px;
         }
         a {
-            color: #007bff;
+            color: rgb(131, 92, 52);
             text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #f5a623;
+        }
+        footer {
+            background-color: #333;
+            color: #FFF;
+            text-align: center;
+            padding: 10px 0;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>404 - Not Found</h1>
-        <p>Oops! The page you're looking for does not exist.</p>
-        <p>Return to <a href="/">homepage</a>.</p>
+        <p>Oops! The page you're looking for does not exist YET!</p>
     </div>
+    <footer>
+        <p>&copy; 2024 UTMS</p>
+    </footer>
 </body>
 </html>

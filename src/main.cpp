@@ -14,9 +14,7 @@ using namespace std;
 
 int main(int argc, char const*argv[])
 {
-    ofstream fileout("output.txt");
-    cout.rdbuf(fileout.rdbuf());
-
+    
 
 
 

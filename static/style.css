@@ -1,5 +1,4 @@
-/* styles.css */
-
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -8,21 +7,30 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #000; /* Set background to black */
-    color: #FFF; /* Set text to white for better contrast */
+    background-color: #000;
+    color: #FFF;
 }
 
+/* Header Styles */
 header {
     background-color: #333;
     color: white;
     padding: 1em;
     width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 header h1 {
     margin: 0;
+    font-size: 2em;
+    transition: color 0.3s ease;
 }
 
+header h1:hover {
+    color: rgb(255, 153, 0);
+}
+
+/* Main Content Styles */
 main {
     flex: 1;
     display: flex;
@@ -30,11 +38,17 @@ main {
     justify-content: center;
     align-items: center;
     padding: 2em;
+    width: 100%;
 }
 
 .logo {
     width: 10%;
     margin-bottom: 1em;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.1);
 }
 
 .button {
@@ -43,78 +57,140 @@ main {
     margin-top: 1em;
     font-size: 1em;
     color: white;
-    background-color: rgb(255, 153, 0); /* Use the specified RGB color */
+    background-color: rgb(131, 92, 52);
     text-decoration: none;
     border-radius: 5px;
-    transition: background-color 0.3s ease; /* Smooth hover transition */
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .button:hover {
-    background-color: #555; /* Slightly darker hover color */
+    background-color: #555;
+    transform: translateY(-2px);
 }
 
-.login-container, .logout-container, .post-container, .profile-container {
-    margin: 2em 0;
-    width: 80%;
+/* Container Styles */
+.login-container, .logout-container, .post-container, .profile-container, .course-form-container {
+    background-color: #1a1a1a;
+    padding: 2em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    margin: 2em auto;
 }
 
-input[type="text"], input[type="password"], textarea {
-    width: 100%;
-    padding: 1em;
-    margin: 0.5em 0;
-    border: 1px solid #333;
+.login-container h2, .logout-container h2, .post-container h2, .profile-container h2, .course-form-container h2 {
+    color: rgb(131, 92, 52);
+    margin-bottom: 1em;
+}
+
+/* Form Group Styles */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin: 0.5em 0 0.2em;
+}
+
+input[type="text"], input[type="password"], textarea, input[type="date"], input[type="time"], input[type="file"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 1em;
     border-radius: 5px;
-    background-color: #222; /* Dark background for input fields */
-    color: white; /* White text for input fields */
+    border: 1px solid #333;
+    background-color: #222;
+    color: white;
 }
 
-input[type="submit"], .post-button {
-    background-color: rgb(255, 153, 0); /* Use the specified RGB color */
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="file"]:focus {
+    border-color: rgb(131, 92, 52);
+    background-color: #333;
+}
+
+input[type="submit"], .post-button, .course-form-container button {
+    background-color: rgb(131, 92, 52);
     color: white;
     padding: 0.75em 1.5em;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth hover transition */
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-input[type="submit"]:hover, .post-button:hover {
-    background-color: #555; /* Slightly darker hover color */
+input[type="submit"]:hover, .post-button:hover, .course-form-container button:hover {
+    background-color: #555;
+    transform: translateY(-2px);
 }
 
-/* Style for post images */
+/* Post Styles */
 .post-image {
     max-width: 100%;
     height: auto;
-    border-radius: 10px; /* Rounded corners for images */
-    margin: 1em 0; /* Spacing around images */
-    border: 2px solid #333; /* Border around images to match the theme */
+    border-radius: 10px;
+    margin: 1em 0;
+    border: 2px solid #333;
 }
 
 .post {
-    background-color: #1a1a1a; /* Dark background for posts */
+    background-color: #1a1a1a;
     padding: 2em;
     margin: 1em 0;
     border-radius: 10px;
     width: 80%;
-    text-align: left; /* Left-align text in posts */
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .post h2 {
     margin-top: 0;
-    color: rgb(255, 153, 0); /* Use the specified RGB color for post titles */
+    color: rgb(131, 92, 52);
 }
 
 .post p {
-    color: #DDD; /* Light gray text for post content */
+    color: #DDD;
 }
 
+/* Footer Styles */
 footer {
     background-color: #333;
     color: white;
     padding: 1em;
     width: 100%;
     text-align: center;
-    position: absolute;
+    position: relative;
     bottom: 0;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Image Preview Styles */
+.image-preview {
+    display: none;
+    margin-top: 1em;
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #333;
+    border-radius: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .login-container, .logout-container, .post-container, .profile-container, .post, .course-form-container {
+        width: 90%;
+        padding: 1.5em;
+    }
+
+    .logo {
+        width: 20%;
+    }
+
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .button {
+        padding: 0.5em 1em;
+        font-size: 0.9em;
+    }
 }

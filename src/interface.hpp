@@ -26,10 +26,6 @@ private:
     vector<string> delete_commands = {MY_COURSES, "post"};
     vector<string> put_commands = {MY_COURSES};
     vector<string> get_commands = {MY_COURSES, COURSES,PERSONAL_PAGE, "post", NOTIFICATION,COURSE_CHANNEL,COURSE_POST,TA_FORM};
-    bool validate_post(const string &command);
-    bool validate_delete(const string &command);
-    bool validate_put(const string &command);
-    bool validate_get(const string &command);
 };
 
 #endif

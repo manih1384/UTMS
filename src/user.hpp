@@ -47,12 +47,12 @@ public:
 protected:
     string id;
     string password;
-    string photo;
+    string photo="/default_pfp.png";
     int major_id;
     vector<shared_ptr<User>> contacts;
     vector<shared_ptr<UT_media>> posts;
     int next_post_id = 1;
-    vector<shared_ptr<Course>>   courses;
+    vector<shared_ptr<Course>> courses;
     vector<string> notifications;
 };
 

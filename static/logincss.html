@@ -6,6 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
   <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Additional CSS for form group styling */
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group input[type="text"], .form-group input[type="password"] {
+      width: calc(100% - 20px);
+    }
+
+    .toggle-password {
+      margin-left: 5px;
+    }
+  </style>
 </head>
 
 <body>
@@ -15,12 +30,13 @@
   <main>
     <section class="login-container">
       <h2>Login</h2>
-      <form action="/login" method="post">
+      <form id="loginForm" action="/login" method="post">
         <div class="form-group">
-          <input name="username" type="text" placeholder="Username" required>
+          <input id="username" name="username" type="text" placeholder="Username">
         </div>
         <div class="form-group">
-          <input name="password" type="password" placeholder="Password" required>
+          <input id="password" name="password" type="password" placeholder="Password">
+          <input type="checkbox" id="togglePassword" class="toggle-password"> Show Password
         </div>
         <div class="form-group">
           <input type="submit" value="Login" class="post-button">
@@ -31,6 +47,28 @@
   <footer>
     <p>&copy; 2024 UTMS</p>
   </footer>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+
+      if (username.trim() === '' || password.trim() === '') {
+        alert('Username and Password are required.');
+        event.preventDefault();
+      }
+    });
+
+
+    document.getElementById('togglePassword').addEventListener('change', function() {
+      var passwordField = document.getElementById('password');
+      if (this.checked) {
+        passwordField.type = 'text';
+      } else {
+        passwordField.type = 'password';
+      }
+    });
+  </script>
 </body>
 
 </html>
